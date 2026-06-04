@@ -3,15 +3,24 @@ namespace Controllers;
 
 use Model\Producto;
 use Model\Categoria;
+use Model\Subcategoria;
 use MVC\Router;
 
 class PaginasController {
 
-    // ── Home: productos destacados + listado general ───────
+    // ── Home ───────────────────────────────────────────────
     public static function index(Router $router) {
-        $destacados  = Producto::whereArray(['destacado' => 1]);
-        $categorias  = Categoria::all('ASC');
-        $recientes   = Producto::get(8);
+        $destacados = Producto::whereArray(['destacado' => 1]);
+        $categorias = Categoria::all('ASC');
+        $recientes  = Producto::get(8);
+
+        // Para cada destacado, traer su subcategoría y categoría
+        foreach($destacados as $producto) {
+            $producto->subcategoria = Subcategoria::find($producto->subcategoria_id);
+            if($producto->subcategoria) {
+                $producto->categoria = Categoria::find($producto->subcategoria->categoria_id);
+            }
+        }
 
         $router->render('paginas/index', [
             'titulo'     => 'Tienda de Hardware',
@@ -21,66 +30,90 @@ class PaginasController {
         ]);
     }
 
-    // ── Catálogo con búsqueda y filtro por categoría ───────
-    public static function catalogo(Router $router) {
-        $categorias  = Categoria::all('ASC');
-        $busqueda    = s($_GET['busqueda']    ?? '');
-        $categoria_id = filter_var($_GET['categoria'] ?? 0, FILTER_VALIDATE_INT);
+    // ── Categoría: /categoria-producto/componentes ─────────
+    public static function categoria(Router $router) {
+        $slug_categoria = s($_GET['categoria'] ?? '');
+        if(!$slug_categoria) { header('Location: /'); exit; }
 
-        // Construir consulta dinámica
-        $query = "SELECT * FROM productos WHERE 1=1";
-        if($busqueda) {
-            $busqueda_safe = self::$db_escape($busqueda);
-            $query .= " AND (nombre LIKE '%{$busqueda}%' OR descripcion LIKE '%{$busqueda}%')";
-        }
-        if($categoria_id) {
-            $query .= " AND categoria_id = {$categoria_id}";
-        }
-        $query .= " ORDER BY id DESC";
+        $categoria = Categoria::porSlug($slug_categoria);
+        if(!$categoria) { header('Location: /404'); exit; }
 
-        $productos = Producto::consultarSQL($query);
+        // Todas las subcategorías de esta categoría
+        $subcategorias = Subcategoria::porCategoria($categoria->id);
 
-        $router->render('paginas/catalogo', [
-            'titulo'      => 'Catálogo',
-            'productos'   => $productos,
-            'categorias'  => $categorias,
-            'busqueda'    => $busqueda,
-            'categoria_id' => $categoria_id
+        // Todos los productos de esta categoría (todas sus subcategorías)
+        $productos = Producto::porCategoria($categoria->id);
+
+        $router->render('paginas/categoria', [
+            'titulo'       => $categoria->nombre,
+            'categoria'    => $categoria,
+            'subcategorias'=> $subcategorias,
+            'productos'    => $productos
         ]);
     }
 
-    // ── Detalle de un producto ─────────────────────────────
+    // ── Subcategoría: /categoria-producto/componentes/ssd ──
+    public static function subcategoria(Router $router) {
+        $slug_categoria   = s($_GET['categoria']   ?? '');
+        $slug_subcategoria = s($_GET['subcategoria'] ?? '');
+
+        if(!$slug_categoria || !$slug_subcategoria) { header('Location: /'); exit; }
+
+        $categoria    = Categoria::porSlug($slug_categoria);
+        $subcategoria = Subcategoria::porSlug($slug_subcategoria);
+
+        if(!$categoria || !$subcategoria) { header('Location: /404'); exit; }
+
+        // Verificar que la subcategoría pertenece a la categoría
+        if($subcategoria->categoria_id != $categoria->id) { header('Location: /404'); exit; }
+
+        $productos = Producto::porSubcategoria($subcategoria->id);
+
+        // Todas las subcategorías de la categoría (para el menú lateral)
+        $subcategorias = Subcategoria::porCategoria($categoria->id);
+
+        $router->render('paginas/subcategoria', [
+            'titulo'        => $subcategoria->nombre . ' — ' . $categoria->nombre,
+            'categoria'     => $categoria,
+            'subcategoria'  => $subcategoria,
+            'subcategorias' => $subcategorias,
+            'productos'     => $productos
+        ]);
+    }
+
+    // ── Detalle de producto ────────────────────────────────
     public static function producto(Router $router) {
         $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
-        if(!$id) { header('Location: /catalogo'); exit; }
+        if(!$id) { header('Location: /'); exit; }
 
         $producto = Producto::find($id);
-        if(!$producto) { header('Location: /catalogo'); exit; }
+        if(!$producto) { header('Location: /404'); exit; }
 
-        $producto->categoria = Categoria::find($producto->categoria_id);
+        $producto->subcategoria = Subcategoria::find($producto->subcategoria_id);
+        $producto->categoria    = $producto->subcategoria
+            ? Categoria::find($producto->subcategoria->categoria_id)
+            : null;
 
-        // Productos relacionados (misma categoría)
-        $relacionados_query = "SELECT * FROM productos WHERE categoria_id = {$producto->categoria_id} AND id != {$id} LIMIT 4";
-        $relacionados = Producto::consultarSQL($relacionados_query);
+        // Productos relacionados (misma subcategoría)
+        $relacionados = Producto::consultarSQL(
+            "SELECT * FROM productos WHERE subcategoria_id = {$producto->subcategoria_id} AND id != {$id} LIMIT 4"
+        );
 
         $router->render('paginas/producto', [
-            'titulo'      => $producto->nombre,
-            'producto'    => $producto,
+            'titulo'       => $producto->nombre,
+            'producto'     => $producto,
             'relacionados' => $relacionados
         ]);
     }
 
-    // ── Sobre nosotros ─────────────────────────────────────
+    // ── Sobre ──────────────────────────────────────────────
     public static function sobre(Router $router) {
-        $router->render('paginas/sobre', [
-            'titulo' => 'Sobre nosotros'
-        ]);
+        $router->render('paginas/sobre', ['titulo' => 'Sobre nosotros']);
     }
 
     // ── Contacto ───────────────────────────────────────────
     public static function contacto(Router $router) {
         $alertas = [];
-        $enviado = false;
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nombre  = s($_POST['nombre']  ?? '');
@@ -93,23 +126,18 @@ class PaginasController {
             if(!$mensaje) $alertas['error'][] = 'El mensaje es obligatorio';
 
             if(empty($alertas)) {
-                // Aquí iría el envío de email real
-                $enviado = true;
                 $alertas['exito'][] = '¡Mensaje enviado! Te responderemos pronto';
             }
         }
 
         $router->render('paginas/contacto', [
             'titulo'  => 'Contacto',
-            'alertas' => $alertas,
-            'enviado' => $enviado
+            'alertas' => $alertas
         ]);
     }
 
     // ── 404 ────────────────────────────────────────────────
     public static function error(Router $router) {
-        $router->render('paginas/error', [
-            'titulo' => 'Página no encontrada'
-        ]);
+        $router->render('paginas/error', ['titulo' => 'Página no encontrada']);
     }
 }
