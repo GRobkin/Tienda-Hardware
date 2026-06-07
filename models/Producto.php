@@ -50,4 +50,17 @@ class Producto extends ActiveRecord {
                   ORDER BY p.id DESC";
         return self::consultarSQL($query);
     }
+
+    public static function buscar($termino) {
+    $termino = self::$db->escape_string($termino);
+    $query = "SELECT p.*, s.nombre AS subcategoria_nombre, c.nombre AS categoria_nombre
+              FROM productos p
+              INNER JOIN subcategorias s ON p.subcategoria_id = s.id
+              INNER JOIN categorias c ON s.categoria_id = c.id
+              WHERE p.nombre LIKE '%{$termino}%'
+                 OR p.descripcion LIKE '%{$termino}%'
+              ORDER BY p.nombre ASC
+              LIMIT 8";
+    return self::consultarSQL($query);
+    }   
 }

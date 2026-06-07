@@ -7,6 +7,7 @@ use Controllers\PaginasController;
 use Controllers\CarritoController;
 use Controllers\OrdenController;
 use Controllers\AdminController;
+use Controllers\BuscadorController;
 
 $router = new Router();
 
@@ -16,6 +17,7 @@ $router->get('/sobre',    [PaginasController::class, 'sobre']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
 $router->post('/contacto',[PaginasController::class, 'contacto']);
 $router->get('/404',      [PaginasController::class, 'error']);
+$router->get('/buscar', [BuscadorController::class, 'buscar']);
 
 // ── Producto detalle ──────────────────────────────────────
 $router->get('/producto', [PaginasController::class, 'producto']);
