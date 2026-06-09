@@ -45,7 +45,7 @@ class PaginasController {
         // Todos los productos de esta categoría (todas sus subcategorías)
         $productos = Producto::porCategoria($categoria->id);
 
-        $router->render('paginas/categoria', [
+        $router->render('tienda/categoria', [
             'titulo'       => $categoria->nombre,
             'categoria'    => $categoria,
             'subcategorias'=> $subcategorias,
@@ -73,7 +73,7 @@ class PaginasController {
         // Todas las subcategorías de la categoría (para el menú lateral)
         $subcategorias = Subcategoria::porCategoria($categoria->id);
 
-        $router->render('paginas/subcategoria', [
+        $router->render('tienda/subcategoria', [
             'titulo'        => $subcategoria->nombre . ' — ' . $categoria->nombre,
             'categoria'     => $categoria,
             'subcategoria'  => $subcategoria,
@@ -100,7 +100,7 @@ class PaginasController {
             "SELECT * FROM productos WHERE subcategoria_id = {$producto->subcategoria_id} AND id != {$id} LIMIT 4"
         );
 
-        $router->render('paginas/producto', [
+        $router->render('tienda/producto', [
             'titulo'       => $producto->nombre,
             'producto'     => $producto,
             'relacionados' => $relacionados
