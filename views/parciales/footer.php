@@ -5,7 +5,7 @@
 
                 <div class="footer__col">
                     <a href="/" class="footer__logo">
-                        <img src="/img/logo.webp" alt="Tienda Hardware">
+                        <img src="/img/logo.png" alt="Tienda Hardware">
                     </a>
                     <p class="footer__desc">
                         Tu tienda de hardware, componentes y tecnología de confianza.
