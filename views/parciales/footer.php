@@ -43,6 +43,7 @@
                         <?php endif; ?>
                         <li><a href="/sobre">Sobre nosotros</a></li>
                         <li><a href="/contacto">Contacto</a></li>
+                        <li><a href="/garantia">Garantías</a></li>
                     </ul>
                 </div>
 

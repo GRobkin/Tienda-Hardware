@@ -26,6 +26,7 @@ $router = new Router();
 $router->get('/',         [PaginasController::class, 'index']);
 $router->get('/sobre',    [PaginasController::class, 'sobre']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
+$router->get('/garantia', [PaginasController::class, 'garantia']);
 $router->post('/contacto',[PaginasController::class, 'contacto']);
 $router->get('/404',      [PaginasController::class, 'error']);
 $router->get('/buscar', [BuscadorController::class, 'buscar']);

@@ -112,6 +112,11 @@ class PaginasController {
         $router->render('paginas/sobre', ['titulo' => 'Sobre nosotros']);
     }
 
+     // ── Garantía ──────────────────────────────────────────────
+    public static function garantia(Router $router) {
+        $router->render('paginas/garantia', ['titulo' => 'Garantía']);
+    }
+
     // ── Contacto ───────────────────────────────────────────
     public static function contacto(Router $router) {
         $alertas = [];
