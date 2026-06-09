@@ -41,13 +41,13 @@ if (empty($subcategorias_nav)) {
         <div id="buscador-resultados" class="buscador__resultados" hidden></div>
     </div>
 
-    <!-- Acciones (siempre a la derecha) -->
+    <!-- Acciones -->
     <div class="nav__actions">
 
         <!-- Toggle dark mode -->
         <button class="nav__btn" id="themeBtn" aria-label="Cambiar tema">
-            <i class="nav__icon nav__icon--moon" id="iconMoon"></i>
-            <i class="nav__icon nav__icon--sun" id="iconSun" hidden></i>
+            <i class="nav__icon nav__icon--sun" id="iconSun"></i>
+             <i class="nav__icon nav__icon--moon" id="iconMoon" hidden></i>
         </button>
 
         <!-- Carrito -->

@@ -34,9 +34,7 @@ $router->get('/404',      [PaginasController::class, 'error']);
 $router->get('/producto', [PaginasController::class, 'producto']);
 
 // ── Navegación por categoría y subcategoría ───────────────
-// /categoria-producto/componentes
 // /categoria-producto/componentes/ssd
-$router->get('/categoria-producto/categoria',    [PaginasController::class, 'categoria']);
 $router->get('/categoria-producto/subcategoria', [PaginasController::class, 'subcategoria']);
 
 // ── Autenticación ─────────────────────────────────────────
@@ -73,7 +71,7 @@ $router->post('/admin/productos/crear',      [AdminController::class, 'crearProd
 $router->post('/admin/productos/editar',     [AdminController::class, 'editarProducto']);
 $router->post('/admin/productos/eliminar',   [AdminController::class, 'eliminarProducto']);
 
-// ── Admin: órdenes y usuarios ─────────────────────────────
+// ── Admin: órdenes  ───────────────────────────────────────
 $router->get('/admin/ordenes',  [AdminController::class, 'ordenes']);
 
 $router->comprobarRutas();
