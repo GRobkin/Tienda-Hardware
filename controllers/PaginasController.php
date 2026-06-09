@@ -7,6 +7,7 @@ use Model\Subcategoria;
 use MVC\Router;
 
 class PaginasController {
+    
 
     // ── Home ───────────────────────────────────────────────
     public static function index(Router $router) {

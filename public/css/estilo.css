@@ -83,14 +83,15 @@ button { cursor: pointer; font-family: inherit; }
     z-index: 100;
     background: var(--c950);
     height: var(--nav-h);
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
     align-items: center;
     gap: 12px;
     padding: 0 20px;
 }
 
 .nav__logo img {
-    height: 36px;
+    height: 48px;
 }
 
 .nav__cat-btn {
@@ -188,7 +189,7 @@ button { cursor: pointer; font-family: inherit; }
     display: flex;
     align-items: center;
     gap: 2px;
-    margin-left: auto;
+    
 }
 
 .nav__btn {

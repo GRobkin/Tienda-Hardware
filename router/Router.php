@@ -30,10 +30,11 @@ class Router {
 
         ob_start();
         include_once __DIR__ . "/../views/{$view}.php";
-        $contenido = ob_get_clean();
+        $contenido = ob_get_clean();// Limpia el Buffer
 
+        //utilizar layout segun url
         $url_actual = $_SERVER['PATH_INFO'] ?? '/';
-        $layout = str_contains($url_actual, '/admin') ? 'admin-layout' : 'layout';
+        $layout = 'layout';
         include_once __DIR__ . "/../views/{$layout}.php";
     }
 }

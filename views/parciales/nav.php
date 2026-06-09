@@ -21,7 +21,7 @@ if (empty($subcategorias_nav)) {
 
     <!-- Logo -->
     <a href="/" class="nav__logo">
-        <img src="/img/logo.png" alt="Ferretería Hardware">
+        <img src="/img/logo.png" alt="Tienda Hardware">
     </a>
 
     <!-- Botón catálogo -->

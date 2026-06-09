@@ -1,4 +1,13 @@
 <?php
+
+// Servir archivos estáticos (css, js, imágenes)
+$uri = $_SERVER['REQUEST_URI'];
+$archivo = __DIR__ . parse_url($uri, PHP_URL_PATH);
+
+if (is_file($archivo)) {
+    return false; // PHP lo sirve directamente
+}
+
 require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
@@ -10,6 +19,8 @@ use Controllers\AdminController;
 use Controllers\BuscadorController;
 
 $router = new Router();
+
+
 
 // ── Área pública ──────────────────────────────────────────
 $router->get('/',         [PaginasController::class, 'index']);
