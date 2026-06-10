@@ -71,7 +71,8 @@ class AuthController {
                     $usuario->hashPassword();
                     unset($usuario->password2);
                     $usuario->crearToken();
-
+                    $usuario->confirmado = 1;
+                    
                     $resultado = $usuario->guardar();
                     if($resultado['resultado']) {
                         header('Location: /mensaje');

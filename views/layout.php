@@ -1,7 +1,9 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-$ruta = $_SERVER['PATH_INFO'] ?? '/';
+$base   = dirname($_SERVER['SCRIPT_NAME']);
+$uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$ruta   = '/' . ltrim(substr($uri, strlen($base)), '/');
 
 $rutas_auth = ['/login', '/registro', '/olvide', '/restablecer', '/mensaje', '/confirmar'];
 $es_auth    = in_array($ruta, $rutas_auth);
@@ -27,7 +29,7 @@ $es_auth    = in_array($ruta, $rutas_auth);
         <?= $contenido ?>
     </main>
 
-   <?php include __DIR__ . '/parciales/footer.php'; ?>
+    <?php include __DIR__ . '/parciales/footer.php'; ?>
 
     <script src="/js/app.js"></script>
 </body>
