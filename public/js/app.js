@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
         html.dataset.theme = tema;
         if (!iconMoon || !iconSun) return;
         if (tema === 'dark') {
-            iconMoon.hidden = true;
-            iconSun.hidden  = false;
+            iconMoon.style.display = 'none';
+            iconSun.style.display  = 'inline-block';
         } else {
-            iconMoon.hidden = false;
-            iconSun.hidden  = true;
+            iconMoon.style.display = 'inline-block';
+            iconSun.style.display  = 'none';
         }
     }
 
@@ -208,3 +208,73 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 });
+// Patch already loaded — search button click triggers search
+document.addEventListener('DOMContentLoaded', () => {
+    const btnBuscar = document.getElementById('btnBuscar');
+    const inputB    = document.getElementById('buscador-input');
+    if (btnBuscar && inputB) {
+        btnBuscar.addEventListener('click', () => {
+            const q = inputB.value.trim();
+            if (q.length >= 2) {
+                fetch(`/buscar?q=${encodeURIComponent(q)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const res = document.getElementById('buscador-resultados');
+                        if (!res) return;
+                        if (data.length === 0) {
+                            res.innerHTML = '<p class="buscador__vacio">Sin resultados</p>';
+                        } else {
+                            res.innerHTML = data.map(p => `
+                                <a href="${p.url}" class="buscador__item">
+                                    <img src="/img/productos/${p.imagen}" alt="${p.nombre}">
+                                    <span class="buscador__item-nombre">${p.nombre}</span>
+                                    <span class="buscador__item-precio">$${Number(p.precio).toLocaleString('es-AR')}</span>
+                                </a>
+                            `).join('');
+                        }
+                        res.hidden = false;
+                    });
+            } else {
+                inputB.focus();
+            }
+        });
+    }
+});
+
+// ── Slider de banners ──────────────────────────────────
+const sliderTrack = document.getElementById('sliderTrack');
+const sliderDots  = document.getElementById('sliderDots');
+
+if (sliderTrack) {
+    const slides = sliderTrack.querySelectorAll('.slider__slide');
+    const total  = slides.length;
+    let current  = 0;
+    let timer;
+
+    const dots = Array.from({ length: total }, (_, i) => {
+        const d = document.createElement('button');
+        d.className = 'slider__dot' + (i === 0 ? ' activo' : '');
+        d.addEventListener('click', () => goTo(i));
+        sliderDots.appendChild(d);
+        return d;
+    });
+
+    function goTo(n) {
+        current = (n + total) % total;
+        sliderTrack.style.transform = `translateX(-${current * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('activo', i === current));
+        resetTimer();
+    }
+
+    function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(current + 1), 4500);
+    }
+
+    document.getElementById('sliderPrev')
+        ?.addEventListener('click', () => goTo(current - 1));
+    document.getElementById('sliderNext')
+        ?.addEventListener('click', () => goTo(current + 1));
+
+    resetTimer();
+}

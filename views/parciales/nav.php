@@ -1,5 +1,4 @@
 <?php
-// Cargar categorías con sus subcategorías para el panel
 if (empty($categorias_nav)) {
     try {
         $categorias_nav = \Model\Categoria::all('ASC');
@@ -37,17 +36,17 @@ if (empty($subcategorias_nav)) {
                placeholder="Buscar productos..."
                autocomplete="off"
                aria-label="Buscar productos">
-        <i class="nav__icon nav__icon--search"></i>
+        <button type="button" id="btnBuscar" class="nav__search-btn" aria-label="Buscar"><i class="nav__icon nav__icon--search"></i></button>
         <div id="buscador-resultados" class="buscador__resultados" hidden></div>
     </div>
 
-    <!-- Acciones (siempre a la derecha) -->
+    <!-- Acciones -->
     <div class="nav__actions">
 
-        <!-- Toggle dark mode -->
+        <!-- Toggle dark mode: por defecto modo claro → muestra luna -->
         <button class="nav__btn" id="themeBtn" aria-label="Cambiar tema">
             <i class="nav__icon nav__icon--moon" id="iconMoon"></i>
-            <i class="nav__icon nav__icon--sun" id="iconSun" hidden></i>
+            <i class="nav__icon nav__icon--sun"  id="iconSun" hidden></i>
         </button>
 
         <!-- Carrito -->
@@ -116,7 +115,6 @@ if (empty($subcategorias_nav)) {
     </div>
 </div>
 
-<!-- Datos de subcategorías para JS -->
 <script>
     window.SUBCATEGORIAS = <?= json_encode(
         array_map(fn($s) => [
