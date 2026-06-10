@@ -278,3 +278,64 @@ if (sliderTrack) {
 
     resetTimer();
 }
+
+  // ── Validación login ───────────────────────────────────
+    const formLogin = document.getElementById('formLogin');
+ 
+    if (formLogin) {
+        const inputEmail = document.getElementById('email');
+        const inputPass  = document.getElementById('password');
+        const errorEmail = document.getElementById('errorEmail');
+        const errorPass  = document.getElementById('errorPass');
+        const togglePass = document.getElementById('togglePass');
+ 
+        // Mostrar/ocultar contraseña
+        togglePass?.addEventListener('click', () => {
+            const tipo = inputPass.type === 'password' ? 'text' : 'password';
+            inputPass.type = tipo;
+        });
+ 
+        // Validar en tiempo real
+        inputEmail?.addEventListener('blur', () => validarEmail());
+        inputPass?.addEventListener('blur',  () => validarPass());
+ 
+        formLogin.addEventListener('submit', e => {
+            const okEmail = validarEmail();
+            const okPass  = validarPass();
+            if (!okEmail || !okPass) e.preventDefault();
+        });
+ 
+        function validarEmail() {
+            const val = inputEmail.value.trim();
+            if (!val) {
+                mostrarError(inputEmail, errorEmail, 'El correo es obligatorio');
+                return false;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                mostrarError(inputEmail, errorEmail, 'El correo no es válido');
+                return false;
+            }
+            limpiarError(inputEmail, errorEmail);
+            return true;
+        }
+ 
+        function validarPass() {
+            const val = inputPass.value;
+            if (!val) {
+                mostrarError(inputPass, errorPass, 'La contraseña es obligatoria');
+                return false;
+            }
+            limpiarError(inputPass, errorPass);
+            return true;
+        }
+ 
+        function mostrarError(input, span, msg) {
+            input.classList.add('auth__input--error');
+            span.textContent = msg;
+        }
+ 
+        function limpiarError(input, span) {
+            input.classList.remove('auth__input--error');
+            span.textContent = '';
+        }
+    }
