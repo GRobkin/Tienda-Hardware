@@ -14,7 +14,7 @@ class PaginasController {
         $categorias = Categoria::all('ASC');
         $recientes  = Producto::get(8);
 
-        foreach ($destacados as $producto) {
+        foreach (array_merge($destacados, $recientes) as $producto) {
             $producto->subcategoria = Subcategoria::find($producto->subcategoria_id);
             if ($producto->subcategoria) {
                 $producto->categoria = Categoria::find($producto->subcategoria->categoria_id);
@@ -26,6 +26,40 @@ class PaginasController {
             'destacados' => $destacados,
             'categorias' => $categorias,
             'recientes'  => $recientes
+        ]);
+    }
+
+    // ── Categoría: /categoria-producto/categoria?categoria=... ──
+    public static function categoria(Router $router) {
+        $slug = s($_GET['categoria'] ?? '');
+
+        if (!$slug) {
+            header('Location: /');
+            exit;
+        }
+
+        $categoria = Categoria::porSlug($slug);
+        if (!$categoria) {
+            header('Location: /404');
+            exit;
+        }
+
+        $productos     = Producto::porCategoria($categoria->id);
+        $subcategorias = Subcategoria::porCategoria($categoria->id);
+
+        // Nombre de subcategoría para el overline de cada tarjeta
+        $subs_por_id = [];
+        foreach ($subcategorias as $sub) $subs_por_id[$sub->id] = $sub;
+        foreach ($productos as $producto) {
+            $producto->subcategoria = $subs_por_id[$producto->subcategoria_id] ?? null;
+        }
+
+        $router->render('tienda/categoria', [
+            'meta_descripcion' => $categoria->descripcion ?: "Comprá {$categoria->nombre} al mejor precio en Tienda Hardware",
+            'titulo'        => $categoria->nombre,
+            'categoria'     => $categoria,
+            'subcategorias' => $subcategorias,
+            'productos'     => $productos
         ]);
     }
 
@@ -56,6 +90,7 @@ class PaginasController {
         $subcategorias = Subcategoria::porCategoria($categoria->id);
 
         $router->render('tienda/subcategoria', [
+            'meta_descripcion' => "{$subcategoria->nombre} en {$categoria->nombre} — Tienda Hardware",
             'titulo'        => $subcategoria->nombre . ' — ' . $categoria->nombre,
             'categoria'     => $categoria,
             'subcategoria'  => $subcategoria,
@@ -88,6 +123,7 @@ class PaginasController {
         );
 
         $router->render('tienda/producto', [
+            'meta_descripcion' => mb_substr($producto->nombre . ' — ' . $producto->descripcion, 0, 155),
             'titulo'       => $producto->nombre,
             'producto'     => $producto,
             'relacionados' => $relacionados
@@ -109,6 +145,11 @@ class PaginasController {
         $alertas = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!csrf_check()) {
+                $alertas['error'][] = 'La sesión expiró, intentá de nuevo';
+                $router->render('paginas/contacto', ['titulo' => 'Contacto', 'alertas' => $alertas]);
+                return;
+            }
             $nombre  = s($_POST['nombre']  ?? '');
             $email   = s($_POST['email']   ?? '');
             $mensaje = s($_POST['mensaje'] ?? '');
@@ -131,6 +172,7 @@ class PaginasController {
 
     // ── 404 ────────────────────────────────────────────────
     public static function error(Router $router) {
+        http_response_code(404);
         $router->render('paginas/error', ['titulo' => 'Página no encontrada']);
     }
 }

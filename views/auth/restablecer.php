@@ -13,7 +13,8 @@
 
         <?php if ($token_valido ?? false): ?>
 
-        <form method="POST" action="/restablecer" class="auth__form" id="formRestablecer" novalidate>
+        <form method="POST" action="/restablecer?token=<?= s($_GET['token'] ?? '') ?>" class="auth__form" id="formRestablecer" novalidate>
+            <?= csrf_field() ?>
 
             <div class="auth__campo">
                 <label class="auth__label" for="password">Nueva contraseña</label>

@@ -1,6 +1,10 @@
 <?php
-
+/**
+ * Vista: paginas/index.php (Home)
+ * Variables: $destacados, $categorias, $recientes
+ */
 ?>
+
 <!-- Slider de banners -->
 <section class="slider">
     <div class="slider__track" id="sliderTrack">
@@ -28,3 +32,51 @@
 
     <div class="slider__dots" id="sliderDots"></div>
 </section>
+
+<!-- Productos destacados -->
+<?php if (!empty($destacados)): ?>
+<section class="seccion contenedor">
+    <div class="seccion__header">
+        <h2 class="seccion__titulo">Destacados</h2>
+    </div>
+    <div class="grid-productos">
+        <?php foreach ($destacados as $producto): ?>
+            <?php include __DIR__ . '/../parciales/producto-card.php'; ?>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Categorías -->
+<?php if (!empty($categorias)): ?>
+<section class="seccion contenedor">
+    <div class="seccion__header">
+        <h2 class="seccion__titulo">Explorá por categoría</h2>
+    </div>
+    <div class="grid-categorias">
+        <?php foreach ($categorias as $categoria): ?>
+        <a class="categoria-tile" href="/categoria-producto/categoria?categoria=<?= s($categoria->slug) ?>">
+            <span class="categoria-tile__nombre"><?= s($categoria->nombre) ?></span>
+            <?php if ($categoria->descripcion): ?>
+                <span class="categoria-tile__desc"><?= s($categoria->descripcion) ?></span>
+            <?php endif; ?>
+            <span class="categoria-tile__cta">Ver productos →</span>
+        </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Recién llegados -->
+<?php if (!empty($recientes)): ?>
+<section class="seccion contenedor">
+    <div class="seccion__header">
+        <h2 class="seccion__titulo">Recién llegados</h2>
+    </div>
+    <div class="grid-productos">
+        <?php foreach ($recientes as $producto): ?>
+            <?php include __DIR__ . '/../parciales/producto-card.php'; ?>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>

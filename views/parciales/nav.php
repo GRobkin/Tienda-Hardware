@@ -67,16 +67,17 @@ if (empty($subcategorias_nav)) {
                     <i class="nav__icon nav__icon--chevron"></i>
                 </button>
                 <div class="nav__dropdown" hidden>
+                    <a href="/cuenta" class="nav__dropdown-item">Mi cuenta</a>
+                    <a href="/mis-pedidos" class="nav__dropdown-item">Mis pedidos</a>
                     <?php if (is_admin()): ?>
+                        <hr class="nav__dropdown-sep">
                         <a href="/admin/dashboard" class="nav__dropdown-item">Panel admin</a>
                         <a href="/admin/productos" class="nav__dropdown-item">Productos</a>
                         <a href="/admin/ordenes" class="nav__dropdown-item">Órdenes</a>
-                        <hr class="nav__dropdown-sep">
-                    <?php else: ?>
-                        <a href="/mis-pedidos" class="nav__dropdown-item">Mis pedidos</a>
-                        <hr class="nav__dropdown-sep">
                     <?php endif; ?>
+                    <hr class="nav__dropdown-sep">
                     <form method="POST" action="/logout">
+                        <?= csrf_field() ?>
                         <button type="submit" class="nav__dropdown-item nav__dropdown-item--danger">
                             Cerrar sesión
                         </button>

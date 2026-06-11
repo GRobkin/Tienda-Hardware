@@ -16,6 +16,8 @@ class Usuario extends ActiveRecord {
     public $token;
     public $confirmado;
     public $admin;
+    // Columna de solo lectura (no está en $columnasDB, no se escribe)
+    public $creado_en;
 
     public function __construct($args = []) {
         $this->id         = $args['id']         ?? null;
@@ -71,6 +73,15 @@ class Usuario extends ActiveRecord {
     }
 
     public function crearToken() : void {
-        $this->token = uniqid();
+        $this->token = bin2hex(random_bytes(16)); // 32 caracteres, impredecible
+    }
+
+    // Valida los datos editables del perfil (sin contraseña)
+    public function validarPerfil() {
+        if(!$this->nombre)   self::$alertas['error'][] = 'El nombre es obligatorio';
+        if(!$this->apellido) self::$alertas['error'][] = 'El apellido es obligatorio';
+        if(!$this->email)    self::$alertas['error'][] = 'El email es obligatorio';
+        elseif(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
+        return self::$alertas;
     }
 }

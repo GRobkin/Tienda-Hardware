@@ -12,6 +12,7 @@
         <?php include __DIR__ . '/../parciales/alertas.php'; ?>
 
         <form method="POST" action="/login" class="auth__form" id="formLogin" novalidate>
+            <?= csrf_field() ?>
 
             <div class="auth__campo">
                 <label class="auth__label" for="email">Correo electrónico</label>

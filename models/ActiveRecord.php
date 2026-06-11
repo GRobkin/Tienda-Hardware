@@ -46,6 +46,13 @@ class ActiveRecord {
         self::$db = $database;
     }
 
+    /**
+     * Devuelve la conexión mysqli (para transacciones en controladores).
+     */
+    public static function getDB() {
+        return self::$db;
+    }
+
 
     // ─────────────────────────────────────────────
     // ALERTAS Y VALIDACIÓN
@@ -252,6 +259,7 @@ class ActiveRecord {
      * @return static|null     Objeto del modelo, o null si no existe
      */
     public static function find($id) {
+        $id = (int) $id; // previene inyección SQL
         $query = "SELECT * FROM " . static::$tabla . " WHERE id = {$id}";
         $resultado = self::consultarSQL($query);
         return array_shift($resultado); // Devuelve el primer (y único) resultado
@@ -298,6 +306,7 @@ class ActiveRecord {
      * @return static|null          Primer resultado, o null si no existe
      */
     public static function where($columna, $valor) {
+        $valor = self::$db->escape_string($valor); // previene inyección SQL
         $query = "SELECT * FROM " . static::$tabla . " WHERE {$columna} = '{$valor}'";
         $resultado = self::consultarSQL($query);
         return array_shift($resultado);
@@ -346,6 +355,7 @@ class ActiveRecord {
     public static function whereArray($array = []) {
         $query = "SELECT * FROM " . static::$tabla . " WHERE ";
         foreach($array as $key => $value) {
+            $value = self::$db->escape_string($value); // previene inyección SQL
             if($key == array_key_last($array)) {
                 $query .= " {$key} = '{$value}';";
             } else {
@@ -370,7 +380,8 @@ class ActiveRecord {
     public static function total($columna = '', $valor = '') {
         $query = "SELECT COUNT(*) FROM " . static::$tabla;
         if($columna) {
-            $query .= " WHERE {$columna} = {$valor}";
+            $valor = self::$db->escape_string($valor); // previene inyección SQL
+            $query .= " WHERE {$columna} = '{$valor}'";
         }
         $resultado = self::$db->query($query);
         $total = $resultado->fetch_array();
@@ -389,6 +400,7 @@ class ActiveRecord {
     public static function totalArray($array = []) {
         $query = "SELECT COUNT(*) FROM " . static::$tabla . " WHERE ";
         foreach($array as $key => $value) {
+            $value = self::$db->escape_string($value); // previene inyección SQL
             if($key == array_key_last($array)) {
                 $query .= " {$key} = '{$value}' ";
             } else {

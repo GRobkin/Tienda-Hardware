@@ -12,7 +12,6 @@ class OrdenController {
     public static function checkout(Router $router) {
         if(!is_auth()) { header('Location: /login'); exit; }
 
-        session_start();
         $carrito = $_SESSION['carrito'] ?? [];
 
         if(empty($carrito)) { header('Location: /carrito'); exit; }
@@ -33,49 +32,80 @@ class OrdenController {
         $alertas = [];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validar datos de pago ficticios
-            $orden = new Orden([
-                'usuario_id'     => $_SESSION['id'],
-                'nombre_pago'    => $_POST['nombre_pago']    ?? '',
-                'numero_tarjeta' => $_POST['numero_tarjeta'] ?? '',
-                'total'          => $total,
-                'token'          => substr(md5(uniqid(rand(), true)), 0, 12)
-            ]);
+            if(!csrf_check()) {
+                Orden::setAlerta('error', 'La sesión expiró, intentá de nuevo');
+            } else {
+                // Validar datos de pago ficticios
+                $orden = new Orden([
+                    'usuario_id'     => $_SESSION['id'],
+                    'nombre_pago'    => $_POST['nombre_pago']    ?? '',
+                    'numero_tarjeta' => $_POST['numero_tarjeta'] ?? '',
+                    'total'          => $total,
+                    'token'          => bin2hex(random_bytes(6)) // 12 caracteres impredecibles
+                ]);
 
-            $alertas = $orden->validarPago();
+                $alertas = $orden->validarPago();
 
-            if(empty($alertas)) {
-                // Guardar orden
-                $resultado = $orden->guardar();
-
-                if($resultado['resultado']) {
-                    $orden_id = $resultado['id'];
-
-                    // Guardar items y descontar stock
+                // Re-verificar stock contra la base antes de cobrar
+                if(empty($alertas)) {
                     foreach($productos as $producto) {
-                        $item = new OrdenItem([
-                            'orden_id'        => $orden_id,
-                            'producto_id'     => $producto->id,
-                            'cantidad'        => $producto->cantidad,
-                            'precio_unitario' => $producto->precio
-                        ]);
-                        $item->guardar();
+                        $actual = Producto::find($producto->id);
+                        if(!$actual || $actual->stock < $producto->cantidad) {
+                            Orden::setAlerta('error', "Stock insuficiente de {$producto->nombre} (quedan " . ($actual->stock ?? 0) . ")");
+                        }
+                    }
+                    $alertas = Orden::getAlertas();
+                }
 
-                        // Descontar stock
-                        $producto->stock -= $producto->cantidad;
-                        $producto->guardar();
+                if(empty($alertas)) {
+                    // Nunca guardar el número completo: solo los últimos 4 dígitos
+                    $digitos = preg_replace('/\D/', '', $orden->numero_tarjeta);
+                    $orden->numero_tarjeta = '**** **** **** ' . substr($digitos, -4);
+                    $orden->estado = 'pagado';
+
+                    // Orden + items + stock en una única transacción
+                    $db = Orden::getDB();
+                    $db->begin_transaction();
+
+                    try {
+                        $resultado = $orden->guardar();
+                        if(!$resultado['resultado']) {
+                            throw new \Exception('No se pudo crear la orden');
+                        }
+                        $orden_id = $resultado['id'];
+
+                        foreach($productos as $producto) {
+                            $item = new OrdenItem([
+                                'orden_id'        => $orden_id,
+                                'producto_id'     => $producto->id,
+                                'cantidad'        => $producto->cantidad,
+                                'precio_unitario' => $producto->precio
+                            ]);
+                            if(!$item->guardar()['resultado']) {
+                                throw new \Exception('No se pudo guardar un item');
+                            }
+
+                            // Descontar stock
+                            $producto->stock -= $producto->cantidad;
+                            if(!$producto->guardar()) {
+                                throw new \Exception('No se pudo actualizar el stock');
+                            }
+                        }
+
+                        $db->commit();
+                    } catch (\Throwable $e) {
+                        $db->rollback();
+                        Orden::setAlerta('error', 'Ocurrió un error al procesar el pago, intentá de nuevo');
+                        $alertas = Orden::getAlertas();
                     }
 
-                    // Marcar como pagado
-                    $orden->id     = $orden_id;
-                    $orden->estado = 'pagado';
-                    $orden->guardar();
+                    if(empty($alertas)) {
+                        // Vaciar carrito
+                        $_SESSION['carrito'] = [];
 
-                    // Vaciar carrito
-                    $_SESSION['carrito'] = [];
-
-                    header('Location: /orden/confirmacion?token=' . urlencode($orden->token));
-                    exit;
+                        header('Location: /orden/confirmacion?token=' . urlencode($orden->token));
+                        exit;
+                    }
                 }
             }
         }
@@ -97,7 +127,6 @@ class OrdenController {
         if(!$orden) { header('Location: /'); exit; }
 
         // Solo el dueño puede ver su orden (o admin)
-        session_start();
         if(!is_admin() && $_SESSION['id'] != $orden->usuario_id) {
             header('Location: /'); exit;
         }
@@ -119,7 +148,6 @@ class OrdenController {
     public static function misPedidos(Router $router) {
         if(!is_auth()) { header('Location: /login'); exit; }
 
-        session_start();
         $ordenes = Orden::whereArray(['usuario_id' => $_SESSION['id']]);
 
         $router->render('orden/mis-pedidos', [

@@ -14,7 +14,16 @@
 
         <?php include __DIR__ . '/../parciales/alertas.php'; ?>
 
+        <?php if (!empty($demo_link)): ?>
+        <div class="alerta alerta--aviso">
+            Modo demo (sin servidor de correo):
+            <a href="<?= s($demo_link) ?>">abrir el enlace de restablecimiento</a>.
+            También quedó una copia en la carpeta <code>/emails</code>.
+        </div>
+        <?php endif; ?>
+
         <form method="POST" action="/olvide" class="auth__form" id="formOlvide" novalidate>
+            <?= csrf_field() ?>
 
             <div class="auth__campo">
                 <label class="auth__label" for="email">Correo electrónico</label>

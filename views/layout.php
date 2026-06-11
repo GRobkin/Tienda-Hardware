@@ -13,10 +13,13 @@ $es_admin   = str_starts_with($ruta, '/admin');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= s($meta_descripcion ?? 'Tienda Hardware — componentes, periféricos y tecnología') ?>">
+    <meta name="csrf" content="<?= csrf_token() ?>">
     <title><?= s($titulo ?? 'Tienda Hardware') ?> | <?= $es_admin ? 'Admin' : 'Tienda' ?></title>
     <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
+
+    <a class="skip-link" href="#contenido-principal">Saltar al contenido</a>
 
     <?php if ($es_auth): ?>
         <?php include __DIR__ . '/parciales/nav-auth.php'; ?>

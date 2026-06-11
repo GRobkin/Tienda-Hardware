@@ -1,35 +1,97 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ── Dark mode ──────────────────────────────────────────
+    /* ============================================================
+       Helpers
+       ============================================================ */
+
+    // POST con cuerpo form-urlencoded (llega como $_POST en PHP).
+    // Adjunta siempre el token CSRF del <meta name="csrf">.
+    function postForm(url, datos) {
+        const csrf = document.querySelector('meta[name="csrf"]')?.content || '';
+        return fetch(url, {
+            method: 'POST',
+            body: new URLSearchParams({ ...datos, csrf })
+        }).then(r => r.json());
+    }
+
+    function marcarError(input, span, msg) {
+        input?.classList.add('auth__input--error', 'campo__input--error');
+        if (span) span.textContent = msg;
+    }
+
+    function limpiarError(input, span) {
+        input?.classList.remove('auth__input--error', 'campo__input--error');
+        if (span) span.textContent = '';
+    }
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Valida un campo de texto obligatorio. Devuelve true si es válido.
+    function validarRequerido(input, span, msg) {
+        if (!input) return true;
+        if (!input.value.trim()) { marcarError(input, span, msg); return false; }
+        limpiarError(input, span);
+        return true;
+    }
+
+    function validarEmailCampo(input, span) {
+        if (!input) return true;
+        const val = input.value.trim();
+        if (!val)                { marcarError(input, span, 'El correo es obligatorio'); return false; }
+        if (!EMAIL_RE.test(val)) { marcarError(input, span, 'El correo no es válido');   return false; }
+        limpiarError(input, span);
+        return true;
+    }
+
+    function validarPasswordCampo(input, span, minimo = 6) {
+        if (!input) return true;
+        if (!input.value)                 { marcarError(input, span, 'La contraseña es obligatoria'); return false; }
+        if (input.value.length < minimo)  { marcarError(input, span, `Mínimo ${minimo} caracteres`);  return false; }
+        limpiarError(input, span);
+        return true;
+    }
+
+    function validarCoincidencia(input, original, span) {
+        if (!input) return true;
+        if (!input.value)                       { marcarError(input, span, 'Repetí la contraseña');        return false; }
+        if (input.value !== original.value)     { marcarError(input, span, 'Las contraseñas no coinciden'); return false; }
+        limpiarError(input, span);
+        return true;
+    }
+
+    function togglePassword(botonId, inputEl) {
+        document.getElementById(botonId)?.addEventListener('click', () => {
+            if (!inputEl) return;
+            inputEl.type = inputEl.type === 'password' ? 'text' : 'password';
+        });
+    }
+
+    /* ============================================================
+       Dark mode
+       ============================================================ */
     const html     = document.documentElement;
     const themeBtn = document.getElementById('themeBtn');
     const iconMoon = document.getElementById('iconMoon');
     const iconSun  = document.getElementById('iconSun');
 
-    const temaGuardado = localStorage.getItem('tema') || 'light';
-    aplicarTema(temaGuardado);
+    aplicarTema(localStorage.getItem('tema') || 'light');
 
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const nuevo = html.dataset.theme === 'dark' ? 'light' : 'dark';
-            aplicarTema(nuevo);
-            localStorage.setItem('tema', nuevo);
-        });
-    }
+    themeBtn?.addEventListener('click', () => {
+        const nuevo = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        aplicarTema(nuevo);
+        localStorage.setItem('tema', nuevo);
+    });
 
     function aplicarTema(tema) {
         html.dataset.theme = tema;
         if (!iconMoon || !iconSun) return;
-        if (tema === 'dark') {
-            iconMoon.style.display = 'none';
-            iconSun.style.display  = 'inline-block';
-        } else {
-            iconMoon.style.display = 'inline-block';
-            iconSun.style.display  = 'none';
-        }
+        iconMoon.style.display = tema === 'dark' ? 'none' : 'inline-block';
+        iconSun.style.display  = tema === 'dark' ? 'inline-block' : 'none';
     }
 
-    // ── Panel catálogo ─────────────────────────────────────
+    /* ============================================================
+       Panel catálogo
+       ============================================================ */
     const catBtn       = document.getElementById('catBtn');
     const panel        = document.getElementById('catalogoPanel');
     const overlay      = document.getElementById('navOverlay');
@@ -37,8 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (catBtn && panel) {
         catBtn.addEventListener('click', () => {
-            const abierto = !panel.hidden;
-            abierto ? cerrarPanel() : abrirPanel();
+            panel.hidden ? abrirPanel() : cerrarPanel();
         });
 
         overlay?.addEventListener('click', cerrarPanel);
@@ -57,9 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (cats.length > 0) {
-            const primera = cats[0];
-            primera.classList.add('activo');
-            mostrarSubs(parseInt(primera.dataset.id), primera.dataset.slug);
+            cats[0].classList.add('activo');
+            mostrarSubs(parseInt(cats[0].dataset.id), cats[0].dataset.slug);
         }
     }
 
@@ -73,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function cerrarPanel() {
+        if (!panel || panel.hidden) return;
         panel.classList.remove('open');
         catBtn.classList.remove('open');
         catBtn.setAttribute('aria-expanded', 'false');
@@ -91,27 +152,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const titulo = document.querySelector(
-            `.catalogo-panel__cat[data-id="${categoriaId}"]`
-        )?.querySelector('span')?.textContent || '';
+            `.catalogo-panel__cat[data-id="${categoriaId}"] span`
+        )?.textContent || '';
 
-        const items = subs.map(s => `
-            <a href="/categoria-producto/subcategoria?categoria=${categoriaSlug}&subcategoria=${s.slug}"
-               class="catalogo-panel__sub">
-                ${s.nombre}
-            </a>
-        `).join('');
+        catalogoSubs.innerHTML = '';
 
-        catalogoSubs.innerHTML = `
-            <p class="catalogo-panel__subs-titulo">${titulo}</p>
-            <div class="catalogo-panel__subs-grid">${items}</div>
-        `;
+        const tituloEl = document.createElement('p');
+        tituloEl.className = 'catalogo-panel__subs-titulo';
+        tituloEl.textContent = titulo;
 
-        catalogoSubs.querySelectorAll('.catalogo-panel__sub').forEach(el => {
-            el.addEventListener('click', cerrarPanel);
+        const verTodo = document.createElement('a');
+        verTodo.className = 'catalogo-panel__sub catalogo-panel__sub--todo';
+        verTodo.href = `/categoria-producto/categoria?categoria=${encodeURIComponent(categoriaSlug)}`;
+        verTodo.textContent = 'Ver todo →';
+
+        const grid = document.createElement('div');
+        grid.className = 'catalogo-panel__subs-grid';
+
+        subs.forEach(s => {
+            const a = document.createElement('a');
+            a.className = 'catalogo-panel__sub';
+            a.href = `/categoria-producto/subcategoria?categoria=${encodeURIComponent(categoriaSlug)}&subcategoria=${encodeURIComponent(s.slug)}`;
+            a.textContent = s.nombre;
+            a.addEventListener('click', cerrarPanel);
+            grid.appendChild(a);
         });
+
+        grid.appendChild(verTodo);
+        verTodo.addEventListener('click', cerrarPanel);
+
+        catalogoSubs.appendChild(tituloEl);
+        catalogoSubs.appendChild(grid);
     }
 
-    // ── Dropdown usuario ───────────────────────────────────
+    /* ============================================================
+       Dropdown usuario
+       ============================================================ */
     const userMenu = document.getElementById('userMenu');
 
     if (userMenu) {
@@ -130,7 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── Buscador en tiempo real ────────────────────────────
+    /* ============================================================
+       Buscador en tiempo real
+       ============================================================ */
     const inputBuscador      = document.getElementById('buscador-input');
     const resultadosBuscador = document.getElementById('buscador-resultados');
     const btnBuscar          = document.getElementById('btnBuscar');
@@ -148,9 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
             timeoutBuscador = setTimeout(() => buscar(q), 300);
         });
 
-        // Buscar al presionar Enter
         inputBuscador.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 const q = inputBuscador.value.trim();
                 if (q.length >= 2) buscar(q);
             }
@@ -160,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Buscar al clickear la lupa
         btnBuscar?.addEventListener('click', () => {
             const q = inputBuscador.value.trim();
             if (q.length >= 2) buscar(q);
@@ -184,365 +261,263 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Render seguro (sin innerHTML con datos de la BD)
     function renderBuscador(productos) {
         if (!resultadosBuscador) return;
+        resultadosBuscador.innerHTML = '';
 
         if (productos.length === 0) {
-            resultadosBuscador.innerHTML = `<p class="buscador__vacio">Sin resultados</p>`;
+            const p = document.createElement('p');
+            p.className = 'buscador__vacio';
+            p.textContent = 'Sin resultados';
+            resultadosBuscador.appendChild(p);
             resultadosBuscador.hidden = false;
             return;
         }
 
-        resultadosBuscador.innerHTML = productos.map(p => `
-            <a href="${p.url}" class="buscador__item">
-                <img src="/img/productos/${p.imagen}" alt="${p.nombre}">
-                <span class="buscador__item-nombre">${p.nombre}</span>
-                <span class="buscador__item-precio">$${Number(p.precio).toLocaleString('es-AR')}</span>
-            </a>
-        `).join('');
+        productos.forEach(prod => {
+            const a = document.createElement('a');
+            a.href = prod.url;
+            a.className = 'buscador__item';
+
+            const img = document.createElement('img');
+            img.src = `/img/productos/${prod.imagen}`;
+            img.alt = prod.nombre;
+            img.onerror = () => { img.onerror = null; img.src = '/img/placeholder.svg'; };
+
+            const info = document.createElement('span');
+            info.className = 'buscador__item-info';
+
+            const nombre = document.createElement('span');
+            nombre.className = 'buscador__item-nombre';
+            nombre.textContent = prod.nombre;
+
+            const cat = document.createElement('span');
+            cat.className = 'buscador__item-cat';
+            cat.textContent = prod.categoria || '';
+
+            const precio = document.createElement('span');
+            precio.className = 'buscador__item-precio';
+            precio.textContent = 'US$ ' + Number(prod.precio).toLocaleString('es-UY', { minimumFractionDigits: 2 });
+
+            info.appendChild(nombre);
+            if (prod.categoria) info.appendChild(cat);
+            a.appendChild(img);
+            a.appendChild(info);
+            a.appendChild(precio);
+            resultadosBuscador.appendChild(a);
+        });
 
         resultadosBuscador.hidden = false;
     }
 
-    // ── Contador carrito ───────────────────────────────────
-    window.actualizarContadorCarrito = function(total) {
+    /* ============================================================
+       Carrito — contador
+       ============================================================ */
+    window.actualizarContadorCarrito = function (total) {
         const badge = document.getElementById('contadorCarrito');
         if (!badge) return;
         badge.textContent = total;
         badge.hidden = total === 0;
     };
 
-    // ── Agregar al carrito ─────────────────────────────────
+    /* ============================================================
+       Carrito — agregar (botones .agregar-carrito en toda la web)
+       ============================================================ */
     document.addEventListener('click', e => {
         const btn = e.target.closest('.agregar-carrito');
         if (!btn) return;
 
-        const productoId = btn.dataset.id;
-        if (!productoId) return;
+        const id = btn.dataset.id;
+        if (!id) return;
 
+        // Si el botón apunta a un input de cantidad (página de producto), usarlo
+        let cantidad = 1;
+        if (btn.dataset.cantidad) {
+            const input = document.querySelector(btn.dataset.cantidad);
+            cantidad = Math.max(1, parseInt(input?.value, 10) || 1);
+        }
+
+        const textoOriginal = btn.textContent;
         btn.disabled = true;
 
-        fetch('/carrito/agregar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.total !== undefined) {
-                window.actualizarContadorCarrito(data.total);
-            }
-            btn.textContent = '¡Agregado!';
-            setTimeout(() => {
-                btn.textContent = 'Agregar al carrito';
+        postForm('/carrito/agregar', { id, cantidad })
+            .then(data => {
+                if (data.ok) {
+                    window.actualizarContadorCarrito(data.total_items);
+                    btn.textContent = '¡Agregado!';
+                } else {
+                    btn.textContent = data.mensaje || 'Sin stock';
+                }
+                setTimeout(() => {
+                    btn.textContent = textoOriginal;
+                    btn.disabled = false;
+                }, 1500);
+            })
+            .catch(() => {
+                btn.textContent = textoOriginal;
                 btn.disabled = false;
-            }, 1500);
-        })
-        .catch(() => { btn.disabled = false; });
+            });
     });
 
-    // ── Carrito interactivo (cantidad y eliminar) ──────────
-    const tablaCarrito = document.getElementById('tablaCarrito');
+    /* ============================================================
+       Carrito — stepper genérico de cantidad (.cantidad)
+       ============================================================ */
+    document.addEventListener('click', e => {
+        const btnStep = e.target.closest('.cantidad__btn');
+        if (!btnStep) return;
 
-    if (tablaCarrito) {
-        tablaCarrito.addEventListener('click', e => {
-            const btnMas    = e.target.closest('.carrito__btn-mas');
-            const btnMenos  = e.target.closest('.carrito__btn-menos');
-            const btnElim   = e.target.closest('.carrito__btn-eliminar');
+        const wrap  = btnStep.closest('.cantidad');
+        const input = wrap?.querySelector('.cantidad__input');
+        if (!input) return;
 
-            if (btnMas) cambiarCantidad(btnMas.dataset.id, 1);
-            if (btnMenos) cambiarCantidad(btnMenos.dataset.id, -1);
-            if (btnElim) eliminarItem(btnElim.dataset.id);
+        const delta = btnStep.classList.contains('cantidad__btn--mas') ? 1 : -1;
+        const min   = parseInt(input.min, 10) || 1;
+        const max   = parseInt(input.max, 10) || 99;
+        const nuevo = Math.min(max, Math.max(min, (parseInt(input.value, 10) || min) + delta));
+        input.value = nuevo;
+
+        // En la página del carrito el stepper persiste el cambio en el servidor
+        const productoId = wrap.dataset.id;
+        if (productoId) {
+            postForm('/carrito/actualizar', { id: productoId, cantidad: nuevo })
+                .then(data => { if (data.ok) location.reload(); })
+                .catch(() => {});
+        }
+    });
+
+    /* ============================================================
+       Carrito — eliminar item / vaciar (página del carrito)
+       ============================================================ */
+    document.addEventListener('click', e => {
+        const btnElim = e.target.closest('.carrito__btn-eliminar');
+        if (btnElim) {
+            postForm('/carrito/eliminar', { id: btnElim.dataset.id })
+                .then(data => { if (data.ok) location.reload(); })
+                .catch(() => {});
+        }
+
+        const btnVaciar = e.target.closest('#btnVaciarCarrito');
+        if (btnVaciar && confirm('¿Vaciar todo el carrito?')) {
+            postForm('/carrito/vaciar', {})
+                .then(data => { if (data.ok) location.reload(); })
+                .catch(() => {});
+        }
+    });
+
+    /* ============================================================
+       Admin — selects dependientes categoría → subcategoría
+       ============================================================ */
+    const selCategoria    = document.getElementById('selectCategoria');
+    const selSubcategoria = document.getElementById('selectSubcategoria');
+
+    if (selCategoria && selSubcategoria && window.ADMIN_SUBCATS) {
+        const filtrarSubcategorias = () => {
+            const catId  = parseInt(selCategoria.value, 10);
+            const actual = parseInt(selSubcategoria.dataset.actual, 10) || null;
+            const subs   = window.ADMIN_SUBCATS.filter(s => s.categoria_id === catId);
+
+            selSubcategoria.innerHTML = '';
+            if (subs.length === 0) {
+                selSubcategoria.add(new Option('— Sin subcategorías —', ''));
+                return;
+            }
+            subs.forEach(s => {
+                selSubcategoria.add(new Option(s.nombre, s.id, false, s.id === actual));
+            });
+        };
+
+        selCategoria.addEventListener('change', filtrarSubcategorias);
+        filtrarSubcategorias();
+    }
+
+    /* ============================================================
+       Admin — vista previa de imagen al subir
+       ============================================================ */
+    const inputImagen   = document.getElementById('inputImagen');
+    const previewImagen = document.getElementById('previewImagen');
+
+    if (inputImagen && previewImagen) {
+        inputImagen.addEventListener('change', () => {
+            const archivo = inputImagen.files[0];
+            if (archivo) previewImagen.src = URL.createObjectURL(archivo);
         });
     }
 
-    function cambiarCantidad(productoId, delta) {
-        fetch('/carrito/cantidad', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ producto_id: productoId, delta })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.reload) location.reload();
-            if (data.total !== undefined) window.actualizarContadorCarrito(data.total);
-        })
-        .catch(() => {});
+    /* ============================================================
+       Formularios con confirmación (eliminar, etc.)
+       ============================================================ */
+    document.querySelectorAll('form.js-confirm').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!confirm(form.dataset.mensaje || '¿Confirmar esta acción?')) e.preventDefault();
+        });
+    });
+
+    /* ============================================================
+       Checkout — formato de tarjeta y validación
+       ============================================================ */
+    const formCheckout = document.getElementById('formCheckout');
+
+    if (formCheckout) {
+        const iTitular = document.getElementById('nombre_pago');
+        const iTarjeta = document.getElementById('numeroTarjeta');
+        const eTitular = document.getElementById('errorTitular');
+        const eTarjeta = document.getElementById('errorTarjeta');
+
+        // Autoformato: "0000 0000 0000 0000"
+        iTarjeta?.addEventListener('input', () => {
+            const digitos = iTarjeta.value.replace(/\D/g, '').slice(0, 16);
+            iTarjeta.value = digitos.replace(/(\d{4})(?=\d)/g, '$1 ');
+        });
+
+        function validarTarjeta() {
+            const digitos = (iTarjeta?.value || '').replace(/\D/g, '');
+            if (!digitos)             { marcarError(iTarjeta, eTarjeta, 'El número de tarjeta es obligatorio'); return false; }
+            if (digitos.length !== 16) { marcarError(iTarjeta, eTarjeta, 'Debe tener 16 dígitos');               return false; }
+            limpiarError(iTarjeta, eTarjeta);
+            return true;
+        }
+
+        iTitular?.addEventListener('blur', () => validarRequerido(iTitular, eTitular, 'El titular es obligatorio'));
+        iTarjeta?.addEventListener('blur', validarTarjeta);
+
+        formCheckout.addEventListener('submit', e => {
+            const ok = [
+                validarRequerido(iTitular, eTitular, 'El titular es obligatorio'),
+                validarTarjeta()
+            ];
+            if (ok.includes(false)) e.preventDefault();
+        });
     }
 
-    function eliminarItem(productoId) {
-        fetch('/carrito/eliminar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ producto_id: productoId })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.reload) location.reload();
-            if (data.total !== undefined) window.actualizarContadorCarrito(data.total);
-        })
-        .catch(() => {});
-    }
-
-    // ── Validación login ───────────────────────────────────
+    /* ============================================================
+       Validación — Login
+       ============================================================ */
     const formLogin = document.getElementById('formLogin');
 
     if (formLogin) {
-        const inputEmail = document.getElementById('email');
-        const inputPass  = document.getElementById('password');
-        const errorEmail = document.getElementById('errorEmail');
-        const errorPass  = document.getElementById('errorPass');
-        const togglePass = document.getElementById('togglePass');
+        const iEmail = document.getElementById('email');
+        const iPass  = document.getElementById('password');
+        const eEmail = document.getElementById('errorEmail');
+        const ePass  = document.getElementById('errorPass');
 
-        togglePass?.addEventListener('click', () => {
-            inputPass.type = inputPass.type === 'password' ? 'text' : 'password';
-        });
+        togglePassword('togglePass', iPass);
 
-        inputEmail?.addEventListener('blur', () => validarEmail());
-        inputPass?.addEventListener('blur',  () => validarPass());
+        iEmail?.addEventListener('blur', () => validarEmailCampo(iEmail, eEmail));
+        iPass?.addEventListener('blur',  () => validarRequerido(iPass, ePass, 'La contraseña es obligatoria'));
 
         formLogin.addEventListener('submit', e => {
-            const okEmail = validarEmail();
-            const okPass  = validarPass();
-            if (!okEmail || !okPass) e.preventDefault();
+            const ok = [
+                validarEmailCampo(iEmail, eEmail),
+                validarRequerido(iPass, ePass, 'La contraseña es obligatoria')
+            ];
+            if (ok.includes(false)) e.preventDefault();
         });
-
-        function validarEmail() {
-            const val = inputEmail.value.trim();
-            if (!val) {
-                mostrarError(inputEmail, errorEmail, 'El correo es obligatorio');
-                return false;
-            }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-                mostrarError(inputEmail, errorEmail, 'El correo no es válido');
-                return false;
-            }
-            limpiarError(inputEmail, errorEmail);
-            return true;
-        }
-
-        function validarPass() {
-            const val = inputPass.value;
-            if (!val) {
-                mostrarError(inputPass, errorPass, 'La contraseña es obligatoria');
-                return false;
-            }
-            limpiarError(inputPass, errorPass);
-            return true;
-        }
-
-        function mostrarError(input, span, msg) {
-            input.classList.add('auth__input--error');
-            span.textContent = msg;
-        }
-
-        function limpiarError(input, span) {
-            input.classList.remove('auth__input--error');
-            span.textContent = '';
-        }
     }
 
-    // ── Validación registro ────────────────────────────────
-    const formRegistro = document.getElementById('formRegistro');
-
-    if (formRegistro) {
-        const inputEmail2  = document.getElementById('email');
-        const inputPass2   = document.getElementById('password');
-        const inputPass2c  = document.getElementById('password_confirm');
-        const errorEmail2  = document.getElementById('errorEmail');
-        const errorPass2   = document.getElementById('errorPass');
-        const errorPass2c  = document.getElementById('errorPassConfirm');
-        const togglePass2  = document.getElementById('togglePass');
-        const togglePass2c = document.getElementById('togglePassConfirm');
-
-        togglePass2?.addEventListener('click', () => {
-            inputPass2.type = inputPass2.type === 'password' ? 'text' : 'password';
-        });
-
-        togglePass2c?.addEventListener('click', () => {
-            inputPass2c.type = inputPass2c.type === 'password' ? 'text' : 'password';
-        });
-
-        inputEmail2?.addEventListener('blur', () => validarEmailReg());
-        inputPass2?.addEventListener('blur',  () => validarPassReg());
-        inputPass2c?.addEventListener('blur', () => validarPassConfirm());
-
-        formRegistro.addEventListener('submit', e => {
-            const ok1 = validarEmailReg();
-            const ok2 = validarPassReg();
-            const ok3 = validarPassConfirm();
-            if (!ok1 || !ok2 || !ok3) e.preventDefault();
-        });
-
-        function validarEmailReg() {
-            const val = inputEmail2.value.trim();
-            if (!val) {
-                mostrarErrorReg(inputEmail2, errorEmail2, 'El correo es obligatorio');
-                return false;
-            }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-                mostrarErrorReg(inputEmail2, errorEmail2, 'El correo no es válido');
-                return false;
-            }
-            limpiarErrorReg(inputEmail2, errorEmail2);
-            return true;
-        }
-
-        function validarPassReg() {
-            const val = inputPass2.value;
-            if (!val) {
-                mostrarErrorReg(inputPass2, errorPass2, 'La contraseña es obligatoria');
-                return false;
-            }
-            if (val.length < 6) {
-                mostrarErrorReg(inputPass2, errorPass2, 'Mínimo 6 caracteres');
-                return false;
-            }
-            limpiarErrorReg(inputPass2, errorPass2);
-            return true;
-        }
-
-        function validarPassConfirm() {
-            if (!inputPass2c) return true;
-            const val  = inputPass2c.value;
-            const orig = inputPass2.value;
-            if (!val) {
-                mostrarErrorReg(inputPass2c, errorPass2c, 'Repetí la contraseña');
-                return false;
-            }
-            if (val !== orig) {
-                mostrarErrorReg(inputPass2c, errorPass2c, 'Las contraseñas no coinciden');
-                return false;
-            }
-            limpiarErrorReg(inputPass2c, errorPass2c);
-            return true;
-        }
-
-        function mostrarErrorReg(input, span, msg) {
-            input?.classList.add('auth__input--error');
-            if (span) span.textContent = msg;
-        }
-
-        function limpiarErrorReg(input, span) {
-            input?.classList.remove('auth__input--error');
-            if (span) span.textContent = '';
-        }
-    }
-
-});
-
-// ── Slider de banners ──────────────────────────────────
-const sliderTrack = document.getElementById('sliderTrack');
-const sliderDots  = document.getElementById('sliderDots');
-
-if (sliderTrack) {
-    const slides = sliderTrack.querySelectorAll('.slider__slide');
-    const total  = slides.length;
-    let current  = 0;
-    let timer;
-
-    const dots = Array.from({ length: total }, (_, i) => {
-        const d = document.createElement('button');
-        d.className = 'slider__dot' + (i === 0 ? ' activo' : '');
-        d.addEventListener('click', () => goTo(i));
-        sliderDots.appendChild(d);
-        return d;
-    
-    // ── Validación olvide contraseña ──────────────────────
-    const formOlvide = document.getElementById('formOlvide');
-
-    if (formOlvide) {
-        const inputEmail = document.getElementById('email');
-        const errorEmail = document.getElementById('errorEmail');
-
-        inputEmail?.addEventListener('blur', validarEmailOlvide);
-
-        formOlvide.addEventListener('submit', e => {
-            if (!validarEmailOlvide()) e.preventDefault();
-        });
-
-        function validarEmailOlvide() {
-            const val = inputEmail.value.trim();
-            if (!val) {
-                inputEmail.classList.add('auth__input--error');
-                errorEmail.textContent = 'El correo es obligatorio';
-                return false;
-            }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-                inputEmail.classList.add('auth__input--error');
-                errorEmail.textContent = 'El correo no es válido';
-                return false;
-            }
-            inputEmail.classList.remove('auth__input--error');
-            errorEmail.textContent = '';
-            return true;
-        }
-    }
-
-    // ── Validación restablecer contraseña ─────────────────
-    const formRestablecer = document.getElementById('formRestablecer');
-
-    if (formRestablecer) {
-        const inputPass  = document.getElementById('password');
-        const inputPass2 = document.getElementById('password2');
-        const errorPass  = document.getElementById('errorPass');
-        const errorPass2 = document.getElementById('errorPass2');
-        const toggle1    = document.getElementById('togglePass');
-        const toggle2    = document.getElementById('togglePass2');
-
-        toggle1?.addEventListener('click', () => {
-            inputPass.type = inputPass.type === 'password' ? 'text' : 'password';
-        });
-        toggle2?.addEventListener('click', () => {
-            inputPass2.type = inputPass2.type === 'password' ? 'text' : 'password';
-        });
-
-        inputPass?.addEventListener('blur',  validarPassR);
-        inputPass2?.addEventListener('blur', validarPass2R);
-
-        formRestablecer.addEventListener('submit', e => {
-            const ok1 = validarPassR();
-            const ok2 = validarPass2R();
-            if (!ok1 || !ok2) e.preventDefault();
-        });
-
-        function validarPassR() {
-            const val = inputPass.value;
-            if (!val) {
-                inputPass.classList.add('auth__input--error');
-                errorPass.textContent = 'La contraseña es obligatoria';
-                return false;
-            }
-            if (val.length < 6) {
-                inputPass.classList.add('auth__input--error');
-                errorPass.textContent = 'Mínimo 6 caracteres';
-                return false;
-            }
-            inputPass.classList.remove('auth__input--error');
-            errorPass.textContent = '';
-            return true;
-        }
-
-        function validarPass2R() {
-            const val  = inputPass2.value;
-            const val1 = inputPass.value;
-            if (!val) {
-                inputPass2.classList.add('auth__input--error');
-                errorPass2.textContent = 'Repetí la contraseña';
-                return false;
-            }
-            if (val !== val1) {
-                inputPass2.classList.add('auth__input--error');
-                errorPass2.textContent = 'Las contraseñas no coinciden';
-                return false;
-            }
-            inputPass2.classList.remove('auth__input--error');
-            errorPass2.textContent = '';
-            return true;
-        }
-    }
-
-    // ── Validación registro ───────────────────────────────
+    /* ============================================================
+       Validación — Registro
+       ============================================================ */
     const formRegistro = document.getElementById('formRegistro');
 
     if (formRegistro) {
@@ -556,80 +531,107 @@ if (sliderTrack) {
         const eEmail    = document.getElementById('errorEmail');
         const ePass     = document.getElementById('errorPass');
         const ePass2    = document.getElementById('errorPass2');
-        const tPass     = document.getElementById('togglePass');
-        const tPass2    = document.getElementById('togglePass2');
 
-        tPass?.addEventListener('click',  () => { iPass.type  = iPass.type  === 'password' ? 'text' : 'password'; });
-        tPass2?.addEventListener('click', () => { iPass2.type = iPass2.type === 'password' ? 'text' : 'password'; });
+        togglePassword('togglePass',  iPass);
+        togglePassword('togglePass2', iPass2);
 
-        iNombre?.addEventListener('blur',   () => campo(iNombre,   eNombre,   'El nombre es obligatorio'));
-        iApellido?.addEventListener('blur',  () => campo(iApellido, eApellido, 'El apellido es obligatorio'));
-        iEmail?.addEventListener('blur',     () => campoEmail());
-        iPass?.addEventListener('blur',      () => campoPass());
-        iPass2?.addEventListener('blur',     () => campoPass2());
+        iNombre?.addEventListener('blur',   () => validarRequerido(iNombre, eNombre, 'El nombre es obligatorio'));
+        iApellido?.addEventListener('blur', () => validarRequerido(iApellido, eApellido, 'El apellido es obligatorio'));
+        iEmail?.addEventListener('blur',    () => validarEmailCampo(iEmail, eEmail));
+        iPass?.addEventListener('blur',     () => validarPasswordCampo(iPass, ePass));
+        iPass2?.addEventListener('blur',    () => validarCoincidencia(iPass2, iPass, ePass2));
 
         formRegistro.addEventListener('submit', e => {
             const ok = [
-                campo(iNombre,   eNombre,   'El nombre es obligatorio'),
-                campo(iApellido, eApellido, 'El apellido es obligatorio'),
-                campoEmail(),
-                campoPass(),
-                campoPass2()
+                validarRequerido(iNombre, eNombre, 'El nombre es obligatorio'),
+                validarRequerido(iApellido, eApellido, 'El apellido es obligatorio'),
+                validarEmailCampo(iEmail, eEmail),
+                validarPasswordCampo(iPass, ePass),
+                validarCoincidencia(iPass2, iPass, ePass2)
             ];
             if (ok.includes(false)) e.preventDefault();
         });
-
-        function campo(input, span, msg) {
-            if (!input.value.trim()) {
-                input.classList.add('auth__input--error');
-                span.textContent = msg;
-                return false;
-            }
-            input.classList.remove('auth__input--error');
-            span.textContent = '';
-            return true;
-        }
-
-        function campoEmail() {
-            const val = iEmail.value.trim();
-            if (!val) { iEmail.classList.add('auth__input--error'); eEmail.textContent = 'El correo es obligatorio'; return false; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { iEmail.classList.add('auth__input--error'); eEmail.textContent = 'El correo no es válido'; return false; }
-            iEmail.classList.remove('auth__input--error'); eEmail.textContent = ''; return true;
-        }
-
-        function campoPass() {
-            const val = iPass.value;
-            if (!val) { iPass.classList.add('auth__input--error'); ePass.textContent = 'La contraseña es obligatoria'; return false; }
-            if (val.length < 6) { iPass.classList.add('auth__input--error'); ePass.textContent = 'Mínimo 6 caracteres'; return false; }
-            iPass.classList.remove('auth__input--error'); ePass.textContent = ''; return true;
-        }
-
-        function campoPass2() {
-            const val = iPass2.value;
-            if (!val) { iPass2.classList.add('auth__input--error'); ePass2.textContent = 'Repetí la contraseña'; return false; }
-            if (val !== iPass.value) { iPass2.classList.add('auth__input--error'); ePass2.textContent = 'Las contraseñas no coinciden'; return false; }
-            iPass2.classList.remove('auth__input--error'); ePass2.textContent = ''; return true;
-        }
     }
 
-});
+    /* ============================================================
+       Validación — Olvidé mi contraseña
+       ============================================================ */
+    const formOlvide = document.getElementById('formOlvide');
 
-    function goTo(n) {
-        current = (n + total) % total;
-        sliderTrack.style.transform = `translateX(-${current * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('activo', i === current));
+    if (formOlvide) {
+        const iEmail = document.getElementById('email');
+        const eEmail = document.getElementById('errorEmail');
+
+        iEmail?.addEventListener('blur', () => validarEmailCampo(iEmail, eEmail));
+
+        formOlvide.addEventListener('submit', e => {
+            if (!validarEmailCampo(iEmail, eEmail)) e.preventDefault();
+        });
+    }
+
+    /* ============================================================
+       Validación — Restablecer contraseña
+       ============================================================ */
+    const formRestablecer = document.getElementById('formRestablecer');
+
+    if (formRestablecer) {
+        const iPass  = document.getElementById('password');
+        const iPass2 = document.getElementById('password2');
+        const ePass  = document.getElementById('errorPass');
+        const ePass2 = document.getElementById('errorPass2');
+
+        togglePassword('togglePass',  iPass);
+        togglePassword('togglePass2', iPass2);
+
+        iPass?.addEventListener('blur',  () => validarPasswordCampo(iPass, ePass));
+        iPass2?.addEventListener('blur', () => validarCoincidencia(iPass2, iPass, ePass2));
+
+        formRestablecer.addEventListener('submit', e => {
+            const ok = [
+                validarPasswordCampo(iPass, ePass),
+                validarCoincidencia(iPass2, iPass, ePass2)
+            ];
+            if (ok.includes(false)) e.preventDefault();
+        });
+    }
+
+    /* ============================================================
+       Slider de banners (home)
+       ============================================================ */
+    const sliderTrack = document.getElementById('sliderTrack');
+    const sliderDots  = document.getElementById('sliderDots');
+
+    if (sliderTrack && sliderDots) {
+        const slides = sliderTrack.querySelectorAll('.slider__slide');
+        const total  = slides.length;
+        let current  = 0;
+        let timer;
+
+        const dots = Array.from({ length: total }, (_, i) => {
+            const d = document.createElement('button');
+            d.className = 'slider__dot' + (i === 0 ? ' activo' : '');
+            d.setAttribute('aria-label', `Ir al banner ${i + 1}`);
+            d.addEventListener('click', () => goTo(i));
+            sliderDots.appendChild(d);
+            return d;
+        });
+
+        function goTo(n) {
+            current = (n + total) % total;
+            sliderTrack.style.transform = `translateX(-${current * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('activo', i === current));
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => goTo(current + 1), 4500);
+        }
+
+        document.getElementById('sliderPrev')?.addEventListener('click', () => goTo(current - 1));
+        document.getElementById('sliderNext')?.addEventListener('click', () => goTo(current + 1));
+
         resetTimer();
     }
 
-    function resetTimer() {
-        clearInterval(timer);
-        timer = setInterval(() => goTo(current + 1), 4500);
-    }
-
-    document.getElementById('sliderPrev')
-        ?.addEventListener('click', () => goTo(current - 1));
-    document.getElementById('sliderNext')
-        ?.addEventListener('click', () => goTo(current + 1));
-
-    resetTimer();
-}
+});

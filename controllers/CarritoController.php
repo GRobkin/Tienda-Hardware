@@ -8,7 +8,6 @@ class CarritoController {
 
     // ── Ver carrito ────────────────────────────────────────
     public static function index(Router $router) {
-        session_start();
         $carrito   = $_SESSION['carrito'] ?? [];
         $productos = [];
         $total     = 0;
@@ -32,12 +31,11 @@ class CarritoController {
 
     // ── Agregar al carrito (POST vía fetch) ────────────────
     public static function agregar() {
-        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['ok' => false]);
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
+            echo json_encode(['ok' => false, 'mensaje' => 'Solicitud inválida']);
             return;
         }
 
-        session_start();
         $id       = filter_var($_POST['id']       ?? 0, FILTER_VALIDATE_INT);
         $cantidad = filter_var($_POST['cantidad'] ?? 1, FILTER_VALIDATE_INT);
 
@@ -70,12 +68,11 @@ class CarritoController {
 
     // ── Actualizar cantidad (POST vía fetch) ───────────────
     public static function actualizar() {
-        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false]);
             return;
         }
 
-        session_start();
         $id       = filter_var($_POST['id']       ?? 0, FILTER_VALIDATE_INT);
         $cantidad = filter_var($_POST['cantidad'] ?? 1, FILTER_VALIDATE_INT);
 
@@ -96,12 +93,11 @@ class CarritoController {
 
     // ── Eliminar item del carrito ──────────────────────────
     public static function eliminar() {
-        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false]);
             return;
         }
 
-        session_start();
         $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
         if(isset($_SESSION['carrito'][$id])) {
             unset($_SESSION['carrito'][$id]);
@@ -111,11 +107,10 @@ class CarritoController {
 
     // ── Vaciar carrito ─────────────────────────────────────
     public static function vaciar() {
-        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false]);
             return;
         }
-        session_start();
         $_SESSION['carrito'] = [];
         echo json_encode(['ok' => true]);
     }

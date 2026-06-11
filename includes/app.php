@@ -3,6 +3,11 @@ require __DIR__ . '/../router/Router.php';
 require __DIR__ . '/funciones.php';
 require __DIR__ . '/database.php';
 
+// Sesión única para toda la aplicación
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Autoloader simple para Models y Controllers
 spl_autoload_register(function($class) {
     // Convierte "Model\Usuario" => models/Usuario.php

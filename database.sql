@@ -162,4 +162,4 @@ CREATE TABLE orden_items (
 -- ------------------------------------------------------------
 INSERT INTO usuarios (nombre, apellido, email, password, confirmado, admin) VALUES
     ('Admin', 'Tienda', 'admin@tienda.com',
-     '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 1);
+     '$2y$10$8cQZ8am/g6M1vCHHv6F4n.olGh9zTPERLy.nfWvHxq9Nr9ISeFqJ6', 1, 1);

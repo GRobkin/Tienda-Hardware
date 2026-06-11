@@ -19,6 +19,9 @@ class Producto extends ActiveRecord
     public $categoria;
     public $cantidad;
     public $subtotal;
+    // Columnas extra de JOINs (buscar): no se guardan en la BD
+    public $subcategoria_nombre;
+    public $categoria_nombre;
 
     public function __construct($args = [])
     {
