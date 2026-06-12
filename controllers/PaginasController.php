@@ -8,9 +8,30 @@ use MVC\Router;
 
 class PaginasController {
 
+    // Lee los filtros de marca y precio desde $_GET
+    private static function leerFiltros() : array {
+        $marcas = array_filter(array_map('trim', (array) ($_GET['marca'] ?? [])));
+        $min = $_GET['precio_min'] ?? '';
+        $max = $_GET['precio_max'] ?? '';
+        return [
+            'marcas'     => $marcas,
+            'precio_min' => is_numeric($min) ? (float) $min : null,
+            'precio_max' => is_numeric($max) ? (float) $max : null,
+        ];
+    }
+
+    // Query string de los filtros activos (para que la paginación los conserve)
+    private static function queryFiltros(array $filtros, array $extra = []) : string {
+        $params = $extra;
+        if ($filtros['marcas'])              $params['marca']      = $filtros['marcas'];
+        if ($filtros['precio_min'] !== null) $params['precio_min'] = $filtros['precio_min'];
+        if ($filtros['precio_max'] !== null) $params['precio_max'] = $filtros['precio_max'];
+        return http_build_query($params);
+    }
+
     // ── Home ───────────────────────────────────────────────
     public static function index(Router $router) {
-        $destacados = Producto::whereArray(['destacado' => 1]);
+        $destacados = array_slice(Producto::whereArray(['destacado' => 1]), 0, 4);
         $categorias = Categoria::all('ASC');
         $recientes  = Producto::get(8);
 
@@ -44,8 +65,15 @@ class PaginasController {
             exit;
         }
 
-        $productos     = Producto::porCategoria($categoria->id);
         $subcategorias = Subcategoria::porCategoria($categoria->id);
+        $alcance       = array_map(fn($s) => $s->id, $subcategorias);
+
+        $filtros       = self::leerFiltros();
+        $por_pagina    = 12;
+        $pagina_actual = max(1, filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1);
+        $total         = Producto::filtrarTotal($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max']);
+        $productos     = Producto::filtrar($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max'],
+                                           $por_pagina, ($pagina_actual - 1) * $por_pagina);
 
         // Nombre de subcategoría para el overline de cada tarjeta
         $subs_por_id = [];
@@ -59,7 +87,13 @@ class PaginasController {
             'titulo'        => $categoria->nombre,
             'categoria'     => $categoria,
             'subcategorias' => $subcategorias,
-            'productos'     => $productos
+            'productos'     => $productos,
+            'total'         => $total,
+            'pagina_actual' => $pagina_actual,
+            'total_paginas' => (int) ceil($total / $por_pagina),
+            'marcas_disponibles' => Producto::marcasDisponibles($alcance),
+            'filtros'       => $filtros,
+            'query_filtros' => self::queryFiltros($filtros, ['categoria' => $categoria->slug])
         ]);
     }
 
@@ -86,8 +120,15 @@ class PaginasController {
             exit;
         }
 
-        $productos     = Producto::porSubcategoria($subcategoria->id);
         $subcategorias = Subcategoria::porCategoria($categoria->id);
+        $alcance       = [$subcategoria->id];
+
+        $filtros       = self::leerFiltros();
+        $por_pagina    = 12;
+        $pagina_actual = max(1, filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1);
+        $total         = Producto::filtrarTotal($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max']);
+        $productos     = Producto::filtrar($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max'],
+                                           $por_pagina, ($pagina_actual - 1) * $por_pagina);
 
         $router->render('tienda/subcategoria', [
             'meta_descripcion' => "{$subcategoria->nombre} en {$categoria->nombre} — Tienda Hardware",
@@ -95,7 +136,15 @@ class PaginasController {
             'categoria'     => $categoria,
             'subcategoria'  => $subcategoria,
             'subcategorias' => $subcategorias,
-            'productos'     => $productos
+            'productos'     => $productos,
+            'total'         => $total,
+            'pagina_actual' => $pagina_actual,
+            'total_paginas' => (int) ceil($total / $por_pagina),
+            'marcas_disponibles' => Producto::marcasDisponibles($alcance),
+            'filtros'       => $filtros,
+            'query_filtros' => self::queryFiltros($filtros, [
+                'categoria' => $categoria->slug, 'subcategoria' => $subcategoria->slug
+            ])
         ]);
     }
 

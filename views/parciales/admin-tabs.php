@@ -1,9 +1,11 @@
 <?php
-$ruta = $_SERVER['PATH_INFO'] ?? '/';
-
-function admin_tab_activo($prefijo) {
-    global $ruta;
-    return $ruta === $prefijo || str_starts_with($ruta, $prefijo . '/') ? 'admin-tabs__tab--activo' : '';
+// Lee la ruta directamente: este parcial se incluye dentro de Router::render(),
+// así que una variable local jamás sería visible vía "global".
+if (!function_exists('admin_tab_activo')) {
+    function admin_tab_activo($prefijo) {
+        $ruta = $_SERVER['PATH_INFO'] ?? '/';
+        return $ruta === $prefijo || str_starts_with($ruta, $prefijo . '/') ? 'admin-tabs__tab--activo' : '';
+    }
 }
 ?>
 
@@ -25,22 +27,6 @@ function admin_tab_activo($prefijo) {
                 <path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
             Productos
-        </a>
-        <a href="/admin/categorias"
-           class="admin-tabs__tab <?= admin_tab_activo('/admin/categorias') ?>">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-            </svg>
-            Categorías
-        </a>
-        <a href="/admin/subcategorias"
-           class="admin-tabs__tab <?= admin_tab_activo('/admin/subcategorias') ?>">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-                <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
-                <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-            </svg>
-            Subcategorías
         </a>
         <a href="/admin/ordenes"
            class="admin-tabs__tab <?= admin_tab_activo('/admin/ordenes') ?>">

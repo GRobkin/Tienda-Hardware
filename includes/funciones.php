@@ -86,49 +86,14 @@ function generar_slug($texto) : string {
 }
 
 // ── Email ────────────────────────────────────────────────────
+// Pendiente para más adelante: hoy nada llama a esta función.
+// Cuando haya servidor de correo, basta con configurar php.ini.
 
-/**
- * Envía un email con mail() si el servidor está configurado y SIEMPRE
- * guarda una copia en /emails (bandeja de salida de desarrollo).
- * Devuelve true si mail() reportó envío real.
- */
 function enviar_email($para, $asunto, $html) : bool {
     $headers  = "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= "From: Tienda Hardware <no-reply@tiendahardware.uy>\r\n";
 
-    $enviado = @mail($para, $asunto, $html, $headers);
-
-    // Bandeja de salida local: permite ver el email sin SMTP configurado
-    $dir = __DIR__ . '/../emails';
-    if (!is_dir($dir)) mkdir($dir, 0777, true);
-    $archivo = $dir . '/' . date('Ymd-His') . '-' . generar_slug($asunto) . '.html';
-    file_put_contents($archivo, "<!-- Para: {$para} | Enviado por mail(): " . ($enviado ? 'si' : 'no') . " -->\n" . $html);
-
-    return (bool) $enviado;
+    return (bool) @mail($para, $asunto, $html, $headers);
 }
 
-// Plantilla simple para los emails transaccionales
-function plantilla_email($titulo, $cuerpo, $boton_texto, $boton_url) : string {
-    return '
-    <div style="font-family: system-ui, sans-serif; background:#f0f4ff; padding:32px 16px;">
-        <div style="max-width:480px; margin:0 auto; background:#ffffff; border-radius:12px; padding:32px; border:1px solid #e2e8f5;">
-            <h1 style="font-size:20px; color:#0f172a; margin:0 0 12px;">' . s($titulo) . '</h1>
-            <p style="font-size:14px; color:#64748b; line-height:1.6; margin:0 0 24px;">' . s($cuerpo) . '</p>
-            <a href="' . s($boton_url) . '"
-               style="display:inline-block; background:#2e47ff; color:#ffffff; text-decoration:none;
-                      padding:12px 22px; border-radius:8px; font-size:14px; font-weight:600;">'
-                . s($boton_texto) .
-            '</a>
-            <p style="font-size:12px; color:#94a3b8; margin:24px 0 0;">
-                Si el botón no funciona, copiá este enlace: <br>' . s($boton_url) . '
-            </p>
-        </div>
-    </div>';
-}
-
-// URL absoluta del sitio (para enlaces en emails)
-function url_sitio($ruta = '') : string {
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    return 'http://' . $host . $ruta;
-}

@@ -194,217 +194,6 @@ class AdminController {
     }
 
     // ══════════════════════════════════════════════════════
-    // CATEGORÍAS
-    // ══════════════════════════════════════════════════════
-
-    public static function categorias(Router $router) {
-        self::proteger();
-
-        $categorias = Categoria::all('ASC');
-        foreach($categorias as $categoria) {
-            $categoria->total_subcategorias = Subcategoria::total('categoria_id', $categoria->id);
-        }
-
-        $router->render('admin/categorias/index', [
-            'titulo'     => 'Categorías',
-            'categorias' => $categorias,
-            'alertas'    => Categoria::getAlertas()
-        ]);
-    }
-
-    public static function crearCategoria() {
-        self::proteger();
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
-            $categoria = new Categoria([
-                'nombre'      => trim($_POST['nombre'] ?? ''),
-                'descripcion' => trim($_POST['descripcion'] ?? '')
-            ]);
-            $categoria->slug = generar_slug($categoria->nombre);
-
-            $alertas = $categoria->validar();
-            if(empty($alertas)) {
-                if(Categoria::where('slug', $categoria->slug)) {
-                    flash('error', 'Ya existe una categoría con ese nombre');
-                } else {
-                    $categoria->guardar();
-                    flash('exito', 'Categoría creada');
-                }
-            } else {
-                flash('error', 'El nombre de la categoría es obligatorio');
-            }
-        }
-        header('Location: /admin/categorias');
-        exit;
-    }
-
-    public static function editarCategoria(Router $router) {
-        self::proteger();
-
-        $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
-        $categoria = $id ? Categoria::find($id) : null;
-        if(!$categoria) { header('Location: /admin/categorias'); exit; }
-
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!csrf_check()) {
-                Categoria::setAlerta('error', 'La sesión expiró, intentá de nuevo');
-            } else {
-                $categoria->nombre      = trim($_POST['nombre'] ?? '');
-                $categoria->descripcion = trim($_POST['descripcion'] ?? '');
-                $categoria->slug        = generar_slug($categoria->nombre);
-
-                $alertas = $categoria->validar();
-                if(empty($alertas)) {
-                    $existe = Categoria::where('slug', $categoria->slug);
-                    if($existe && $existe->id != $categoria->id) {
-                        Categoria::setAlerta('error', 'Ya existe una categoría con ese nombre');
-                    } else {
-                        $categoria->guardar();
-                        flash('exito', 'Categoría actualizada');
-                        header('Location: /admin/categorias');
-                        exit;
-                    }
-                }
-            }
-        }
-
-        $router->render('admin/categorias/editar', [
-            'titulo'    => 'Editar categoría',
-            'categoria' => $categoria,
-            'alertas'   => Categoria::getAlertas()
-        ]);
-    }
-
-    public static function eliminarCategoria() {
-        self::proteger();
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
-            $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
-            $categoria = $id ? Categoria::find($id) : null;
-
-            if($categoria) {
-                if(Subcategoria::total('categoria_id', $categoria->id) > 0) {
-                    flash('error', 'No se puede eliminar: la categoría tiene subcategorías. Eliminalas o reasignalas primero.');
-                } else {
-                    $categoria->eliminar();
-                    flash('exito', 'Categoría eliminada');
-                }
-            }
-        }
-        header('Location: /admin/categorias');
-        exit;
-    }
-
-    // ══════════════════════════════════════════════════════
-    // SUBCATEGORÍAS
-    // ══════════════════════════════════════════════════════
-
-    public static function subcategorias(Router $router) {
-        self::proteger();
-
-        $subcategorias = Subcategoria::all('ASC');
-        $categorias    = Categoria::all('ASC');
-
-        $cats_por_id = [];
-        foreach($categorias as $cat) $cats_por_id[$cat->id] = $cat;
-        foreach($subcategorias as $sub) {
-            $sub->categoria       = $cats_por_id[$sub->categoria_id] ?? null;
-            $sub->total_productos = Producto::total('subcategoria_id', $sub->id);
-        }
-
-        $router->render('admin/subcategorias/index', [
-            'titulo'        => 'Subcategorías',
-            'subcategorias' => $subcategorias,
-            'categorias'    => $categorias,
-            'alertas'       => Subcategoria::getAlertas()
-        ]);
-    }
-
-    public static function crearSubcategoria() {
-        self::proteger();
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
-            $subcategoria = new Subcategoria([
-                'nombre'       => trim($_POST['nombre'] ?? ''),
-                'categoria_id' => filter_var($_POST['categoria_id'] ?? 0, FILTER_VALIDATE_INT) ?: '',
-                'descripcion'  => trim($_POST['descripcion'] ?? '')
-            ]);
-            $subcategoria->slug = generar_slug($subcategoria->nombre);
-
-            $alertas = $subcategoria->validar();
-            if(empty($alertas)) {
-                if(Subcategoria::where('slug', $subcategoria->slug)) {
-                    flash('error', 'Ya existe una subcategoría con ese nombre');
-                } else {
-                    $subcategoria->guardar();
-                    flash('exito', 'Subcategoría creada');
-                }
-            } else {
-                flash('error', 'Completá el nombre y elegí una categoría');
-            }
-        }
-        header('Location: /admin/subcategorias');
-        exit;
-    }
-
-    public static function editarSubcategoria(Router $router) {
-        self::proteger();
-
-        $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
-        $subcategoria = $id ? Subcategoria::find($id) : null;
-        if(!$subcategoria) { header('Location: /admin/subcategorias'); exit; }
-
-        $categorias = Categoria::all('ASC');
-
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!csrf_check()) {
-                Subcategoria::setAlerta('error', 'La sesión expiró, intentá de nuevo');
-            } else {
-                $subcategoria->nombre       = trim($_POST['nombre'] ?? '');
-                $subcategoria->categoria_id = filter_var($_POST['categoria_id'] ?? 0, FILTER_VALIDATE_INT) ?: '';
-                $subcategoria->descripcion  = trim($_POST['descripcion'] ?? '');
-                $subcategoria->slug         = generar_slug($subcategoria->nombre);
-
-                $alertas = $subcategoria->validar();
-                if(empty($alertas)) {
-                    $existe = Subcategoria::where('slug', $subcategoria->slug);
-                    if($existe && $existe->id != $subcategoria->id) {
-                        Subcategoria::setAlerta('error', 'Ya existe una subcategoría con ese nombre');
-                    } else {
-                        $subcategoria->guardar();
-                        flash('exito', 'Subcategoría actualizada');
-                        header('Location: /admin/subcategorias');
-                        exit;
-                    }
-                }
-            }
-        }
-
-        $router->render('admin/subcategorias/editar', [
-            'titulo'       => 'Editar subcategoría',
-            'subcategoria' => $subcategoria,
-            'categorias'   => $categorias,
-            'alertas'      => Subcategoria::getAlertas()
-        ]);
-    }
-
-    public static function eliminarSubcategoria() {
-        self::proteger();
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
-            $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
-            $subcategoria = $id ? Subcategoria::find($id) : null;
-
-            if($subcategoria) {
-                if(Producto::total('subcategoria_id', $subcategoria->id) > 0) {
-                    flash('error', 'No se puede eliminar: hay productos en esta subcategoría. Reasignalos primero.');
-                } else {
-                    $subcategoria->eliminar();
-                    flash('exito', 'Subcategoría eliminada');
-                }
-            }
-        }
-        header('Location: /admin/subcategorias');
-        exit;
-    }
-
-    // ══════════════════════════════════════════════════════
     // ÓRDENES
     // ══════════════════════════════════════════════════════
 
@@ -428,6 +217,101 @@ class AdminController {
             'ordenes'       => $ordenes,
             'pagina_actual' => $pagina_actual,
             'total_paginas' => (int) ceil($total / $por_pagina)
+        ]);
+    }
+
+    // Crear una orden manualmente (venta en mostrador, teléfono, etc.)
+    public static function crearOrden(Router $router) {
+        self::proteger();
+
+        $usuarios  = Usuario::all('ASC');
+        $productos = Producto::ordenar('nombre', 'ASC');
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if(!csrf_check()) {
+                Orden::setAlerta('error', 'La sesión expiró, intentá de nuevo');
+            } else {
+                $usuario_id = filter_var($_POST['usuario_id'] ?? 0, FILTER_VALIDATE_INT);
+                $estado     = in_array($_POST['estado'] ?? '', ['pendiente', 'pagado', 'cancelado'])
+                            ? $_POST['estado'] : 'pendiente';
+
+                // Combinar filas repetidas del mismo producto
+                $ids        = (array) ($_POST['producto_id'] ?? []);
+                $cantidades = (array) ($_POST['cantidad'] ?? []);
+                $items = [];
+                foreach($ids as $i => $pid) {
+                    $pid  = (int) $pid;
+                    $cant = (int) ($cantidades[$i] ?? 0);
+                    if($pid && $cant > 0) $items[$pid] = ($items[$pid] ?? 0) + $cant;
+                }
+
+                if(!$usuario_id || !Usuario::find($usuario_id)) {
+                    Orden::setAlerta('error', 'Elegí un cliente válido');
+                } elseif(empty($items)) {
+                    Orden::setAlerta('error', 'Agregá al menos un producto con cantidad');
+                } else {
+                    // Verificar stock y armar el detalle
+                    $detalle = [];
+                    $total   = 0;
+                    foreach($items as $pid => $cant) {
+                        $producto = Producto::find($pid);
+                        if(!$producto) {
+                            Orden::setAlerta('error', 'Uno de los productos no existe');
+                        } elseif($producto->stock < $cant) {
+                            Orden::setAlerta('error', "Stock insuficiente de {$producto->nombre} (quedan {$producto->stock})");
+                        } else {
+                            $detalle[] = [$producto, $cant];
+                            $total    += $producto->precio * $cant;
+                        }
+                    }
+
+                    if(empty(Orden::getAlertas())) {
+                        $orden = new Orden([
+                            'usuario_id'     => $usuario_id,
+                            'estado'         => $estado,
+                            'total'          => $total,
+                            'nombre_pago'    => 'Carga manual (admin)',
+                            'numero_tarjeta' => '—',
+                            'token'          => bin2hex(random_bytes(6))
+                        ]);
+
+                        $db = Orden::getDB();
+                        $db->begin_transaction();
+                        try {
+                            $resultado = $orden->guardar();
+                            if(!$resultado['resultado']) throw new \Exception('No se pudo crear la orden');
+
+                            foreach($detalle as [$producto, $cant]) {
+                                $item = new OrdenItem([
+                                    'orden_id'        => $resultado['id'],
+                                    'producto_id'     => $producto->id,
+                                    'cantidad'        => $cant,
+                                    'precio_unitario' => $producto->precio
+                                ]);
+                                if(!$item->guardar()['resultado']) throw new \Exception('No se pudo guardar un item');
+
+                                $producto->stock -= $cant;
+                                if(!$producto->guardar()) throw new \Exception('No se pudo actualizar el stock');
+                            }
+
+                            $db->commit();
+                            flash('exito', "Orden {$orden->token} creada correctamente");
+                            header('Location: /admin/ordenes');
+                            exit;
+                        } catch (\Throwable $e) {
+                            $db->rollback();
+                            Orden::setAlerta('error', 'Ocurrió un error al crear la orden, intentá de nuevo');
+                        }
+                    }
+                }
+            }
+        }
+
+        $router->render('admin/ordenes/crear', [
+            'titulo'    => 'Nueva orden',
+            'usuarios'  => $usuarios,
+            'productos' => $productos,
+            'alertas'   => Orden::getAlertas()
         ]);
     }
 

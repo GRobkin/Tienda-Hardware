@@ -53,13 +53,6 @@
 
     </div>
 
-    <!-- Accesos rápidos -->
-    <div class="admin__acciones">
-        <a href="/admin/productos/crear" class="admin__accion-btn">
-            + Nuevo producto
-        </a>
-    </div>
-
     <!-- Órdenes recientes -->
     <div class="admin__seccion">
         <div class="admin__seccion-header">

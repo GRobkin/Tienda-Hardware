@@ -11,6 +11,8 @@ class OrdenController {
     // ── Checkout: formulario de pago ficticio ──────────────
     public static function checkout(Router $router) {
         if(!is_auth()) { header('Location: /login'); exit; }
+        // Los administradores no compran
+        if(is_admin()) { header('Location: /admin/dashboard'); exit; }
 
         $carrito = $_SESSION['carrito'] ?? [];
 

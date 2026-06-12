@@ -12,6 +12,7 @@
     <div class="admin__seccion">
         <div class="admin__seccion-header">
             <h2 class="admin__seccion-titulo">Órdenes</h2>
+            <a href="/admin/ordenes/crear" class="admin__accion-btn">+ Nueva orden</a>
         </div>
 
         <?php if (empty($ordenes)): ?>

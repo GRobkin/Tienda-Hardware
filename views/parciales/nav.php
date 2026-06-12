@@ -49,7 +49,8 @@ if (empty($subcategorias_nav)) {
             <i class="nav__icon nav__icon--sun"  id="iconSun" hidden></i>
         </button>
 
-        <!-- Carrito -->
+        <?php if (!is_admin()): ?>
+        <!-- Carrito (los administradores no compran) -->
         <a href="/carrito" class="nav__btn nav__cart" aria-label="Carrito">
             <i class="nav__icon nav__icon--cart"></i>
             <span class="nav__badge" id="contadorCarrito"
@@ -57,6 +58,7 @@ if (empty($subcategorias_nav)) {
                 <?= total_carrito() ?>
             </span>
         </a>
+        <?php endif; ?>
 
         <!-- Usuario / Entrar -->
         <?php if (is_auth()): ?>
@@ -68,12 +70,13 @@ if (empty($subcategorias_nav)) {
                 </button>
                 <div class="nav__dropdown" hidden>
                     <a href="/cuenta" class="nav__dropdown-item">Mi cuenta</a>
-                    <a href="/mis-pedidos" class="nav__dropdown-item">Mis pedidos</a>
                     <?php if (is_admin()): ?>
                         <hr class="nav__dropdown-sep">
                         <a href="/admin/dashboard" class="nav__dropdown-item">Panel admin</a>
                         <a href="/admin/productos" class="nav__dropdown-item">Productos</a>
                         <a href="/admin/ordenes" class="nav__dropdown-item">Órdenes</a>
+                    <?php else: ?>
+                        <a href="/mis-pedidos" class="nav__dropdown-item">Mis pedidos</a>
                     <?php endif; ?>
                     <hr class="nav__dropdown-sep">
                     <form method="POST" action="/logout">
@@ -91,8 +94,39 @@ if (empty($subcategorias_nav)) {
             </a>
         <?php endif; ?>
 
+        <!-- Hamburguesa (solo móvil) -->
+        <button class="nav__btn nav__hamburguesa" id="hamburguesaBtn"
+                aria-label="Abrir menú" aria-expanded="false" aria-controls="menuMovil">
+            <i class="nav__icon nav__icon--menu"></i>
+        </button>
+
     </div>
 </nav>
+
+<!-- Menú móvil -->
+<div class="menu-movil" id="menuMovil" hidden>
+    <a href="/" class="menu-movil__item">Inicio</a>
+    <a href="/sobre" class="menu-movil__item">Sobre nosotros</a>
+    <a href="/contacto" class="menu-movil__item">Contacto</a>
+    <a href="/garantia" class="menu-movil__item">Garantías</a>
+    <hr class="nav__dropdown-sep">
+    <?php if (is_auth()): ?>
+        <a href="/cuenta" class="menu-movil__item">Mi cuenta</a>
+        <?php if (is_admin()): ?>
+            <a href="/admin/dashboard" class="menu-movil__item">Panel admin</a>
+        <?php else: ?>
+            <a href="/mis-pedidos" class="menu-movil__item">Mis pedidos</a>
+            <a href="/carrito" class="menu-movil__item">Carrito</a>
+        <?php endif; ?>
+        <form method="POST" action="/logout">
+            <?= csrf_field() ?>
+            <button type="submit" class="menu-movil__item menu-movil__item--danger">Cerrar sesión</button>
+        </form>
+    <?php else: ?>
+        <a href="/login" class="menu-movil__item">Iniciar sesión</a>
+        <a href="/registro" class="menu-movil__item">Crear cuenta</a>
+    <?php endif; ?>
+</div>
 
 <!-- Overlay -->
 <div class="nav__overlay" id="navOverlay" hidden></div>

@@ -77,26 +77,11 @@ class AuthController {
                         $usuario->hashPassword();
                         unset($usuario->password2);
                         $usuario->crearToken();
-                        $usuario->confirmado = 0; // requiere confirmar por email
+                        // Sin servidor de correo por ahora: la cuenta queda confirmada al crearse
+                        $usuario->confirmado = 1;
 
                         $resultado = $usuario->guardar();
                         if($resultado['resultado']) {
-                            $enlace = url_sitio('/confirmar?token=' . $usuario->token);
-
-                            enviar_email(
-                                $usuario->email,
-                                'Confirmá tu cuenta en Tienda Hardware',
-                                plantilla_email(
-                                    "¡Hola {$usuario->nombre}!",
-                                    'Gracias por crear tu cuenta. Para empezar a comprar, confirmala haciendo clic en el botón.',
-                                    'Confirmar mi cuenta',
-                                    $enlace
-                                )
-                            );
-
-                            // Modo demo: guardamos el enlace para mostrarlo en pantalla
-                            $_SESSION['demo_email_link'] = $enlace;
-
                             header('Location: /mensaje');
                             exit;
                         }
@@ -137,9 +122,10 @@ class AuthController {
     }
 
     // ── Olvidé mi contraseña ───────────────────────────────
+    // Nota: el envío real de email queda para más adelante; la página
+    // existe pero por ahora solo genera el token y muestra el aviso.
     public static function olvide(Router $router) {
-        $alertas   = [];
-        $demo_link = '';
+        $alertas = [];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!csrf_check()) {
@@ -155,21 +141,6 @@ class AuthController {
                         $usuario->crearToken();
                         unset($usuario->password2);
                         $usuario->guardar();
-
-                        $enlace = url_sitio('/restablecer?token=' . $usuario->token);
-
-                        enviar_email(
-                            $usuario->email,
-                            'Restablecé tu contraseña — Tienda Hardware',
-                            plantilla_email(
-                                "Hola {$usuario->nombre}",
-                                'Recibimos un pedido para restablecer tu contraseña. Si fuiste vos, hacé clic en el botón. Si no, ignorá este mensaje.',
-                                'Restablecer contraseña',
-                                $enlace
-                            )
-                        );
-
-                        $demo_link = $enlace; // Modo demo: se muestra en pantalla
                         Usuario::setAlerta('exito', 'Te enviamos un email con el enlace para restablecer la contraseña');
                     } else {
                         Usuario::setAlerta('error', 'El usuario no existe o no está confirmado');
@@ -179,9 +150,8 @@ class AuthController {
         }
 
         $router->render('auth/olvide', [
-            'titulo'    => 'Olvidé mi contraseña',
-            'alertas'   => Usuario::getAlertas(),
-            'demo_link' => $demo_link
+            'titulo'  => 'Olvidé mi contraseña',
+            'alertas' => Usuario::getAlertas()
         ]);
     }
 
@@ -226,12 +196,8 @@ class AuthController {
 
     // ── Mensaje post-registro ──────────────────────────────
     public static function mensaje(Router $router) {
-        $demo_link = $_SESSION['demo_email_link'] ?? '';
-        unset($_SESSION['demo_email_link']);
-
         $router->render('auth/mensaje', [
-            'titulo'    => 'Cuenta creada',
-            'demo_link' => $demo_link
+            'titulo' => 'Cuenta creada'
         ]);
     }
 }

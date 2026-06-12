@@ -8,6 +8,9 @@ class CarritoController {
 
     // ── Ver carrito ────────────────────────────────────────
     public static function index(Router $router) {
+        // Los administradores no compran
+        if(is_admin()) { header('Location: /admin/dashboard'); exit; }
+
         $carrito   = $_SESSION['carrito'] ?? [];
         $productos = [];
         $total     = 0;
@@ -33,6 +36,12 @@ class CarritoController {
     public static function agregar() {
         if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false, 'mensaje' => 'Solicitud inválida']);
+            return;
+        }
+
+        // Los administradores no compran
+        if(is_admin()) {
+            echo json_encode(['ok' => false, 'mensaje' => 'Los administradores no pueden comprar']);
             return;
         }
 

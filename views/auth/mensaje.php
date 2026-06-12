@@ -1,4 +1,4 @@
-<?php /** Vista: auth/mensaje.php — Variables: $demo_link */ ?>
+<?php /** Vista: auth/mensaje.php */ ?>
 
 <div class="auth">
     <div class="auth__card auth__card--mensaje">
@@ -12,20 +12,11 @@
 
         <h1 class="auth__titulo">¡Cuenta creada!</h1>
         <p class="auth__subtitulo">
-            Te enviamos un email con un enlace para confirmar tu cuenta.
-            Hasta que la confirmes no vas a poder iniciar sesión.
+            Tu cuenta fue creada correctamente. Ya podés iniciar sesión.
         </p>
 
-        <?php if (!empty($demo_link)): ?>
-        <div class="alerta alerta--aviso">
-            Modo demo (sin servidor de correo):
-            <a href="<?= s($demo_link) ?>">confirmar la cuenta con este enlace</a>.
-            También quedó una copia del email en la carpeta <code>/emails</code>.
-        </div>
-        <?php endif; ?>
-
         <div class="auth__mensaje-acciones">
-            <a href="/login" class="auth__btn">Ir al login</a>
+            <a href="/login" class="auth__btn auth__btn--inline">Iniciar sesión</a>
         </div>
 
     </div>

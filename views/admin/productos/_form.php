@@ -17,10 +17,18 @@ $categoria_actual_id = $subcategoria_actual->categoria_id ?? ($categorias[0]->id
 
     <div class="admin-form__col">
 
-        <div class="campo">
-            <label class="campo__label" for="nombre">Nombre</label>
-            <input class="campo__input" id="nombre" name="nombre" type="text"
-                   value="<?= s($producto->nombre) ?>" placeholder="Ej: AMD Ryzen 7 7800X3D" required>
+        <div class="admin-form__fila">
+            <div class="campo">
+                <label class="campo__label" for="nombre">Nombre</label>
+                <input class="campo__input" id="nombre" name="nombre" type="text"
+                       value="<?= s($producto->nombre) ?>" placeholder="Ej: AMD Ryzen 7 7800X3D" required>
+            </div>
+
+            <div class="campo">
+                <label class="campo__label" for="marca">Marca</label>
+                <input class="campo__input" id="marca" name="marca" type="text"
+                       value="<?= s($producto->marca) ?>" placeholder="Ej: AMD">
+            </div>
         </div>
 
         <div class="campo">

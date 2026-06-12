@@ -15,7 +15,7 @@ $es_admin   = str_starts_with($ruta, '/admin');
     <meta name="description" content="<?= s($meta_descripcion ?? 'Tienda Hardware — componentes, periféricos y tecnología') ?>">
     <meta name="csrf" content="<?= csrf_token() ?>">
     <title><?= s($titulo ?? 'Tienda Hardware') ?> | <?= $es_admin ? 'Admin' : 'Tienda' ?></title>
-    <link rel="stylesheet" href="/css/estilo.css">
+    <link rel="stylesheet" href="/css/estilo.css?v=<?= filemtime(__DIR__ . '/../public/css/estilo.css') ?>">
 </head>
 <body>
 
@@ -35,10 +35,11 @@ $es_admin   = str_starts_with($ruta, '/admin');
         <?= $contenido ?>
     </main>
 
-    <?php if (!$es_auth && !$es_admin): ?>
+    <?php if (!$es_admin): ?>
         <?php include __DIR__ . '/parciales/footer.php'; ?>
     <?php endif; ?>
 
-    <script src="/js/app.js"></script>
+    <script src="/js/vendor/sweetalert2.all.min.js"></script>
+    <script src="/js/app.js?v=<?= filemtime(__DIR__ . '/../public/js/app.js') ?>"></script>
 </body>
 </html>

@@ -21,10 +21,13 @@ $sin_stock = (int) $producto->stock < 1;
         <h3 class="producto-card__nombre">
             <a href="/producto?id=<?= (int) $producto->id ?>"><?= s($producto->nombre) ?></a>
         </h3>
+        <?php if (!empty($producto->marca)): ?>
+            <p class="producto-card__marca"><?= s($producto->marca) ?></p>
+        <?php endif; ?>
         <p class="producto-card__precio"><?= formatear_precio($producto->precio) ?></p>
         <?php if ($sin_stock): ?>
             <span class="producto-card__agotado">Sin stock</span>
-        <?php else: ?>
+        <?php elseif (!is_admin()): ?>
             <button type="button"
                     class="boton boton--primario boton--sm agregar-carrito"
                     data-id="<?= (int) $producto->id ?>">

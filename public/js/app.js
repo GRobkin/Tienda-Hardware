@@ -26,6 +26,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    // Toast (SweetAlert2) con fallback silencioso si la librería no cargó
+    const Toast = window.Swal
+        ? Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            timer: 2200,
+            timerProgressBar: true,
+            showConfirmButton: false
+          })
+        : null;
+
+    function avisar(icon, title) {
+        if (Toast) Toast.fire({ icon, title });
+    }
+
+    // Confirmación bonita (SweetAlert2) con fallback a confirm() nativo
+    function confirmarAccion(mensaje) {
+        if (window.Swal) {
+            return Swal.fire({
+                title: mensaje,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar',
+                customClass: { popup: 'swal-tienda' }
+            }).then(r => r.isConfirmed);
+        }
+        return Promise.resolve(window.confirm(mensaje));
+    }
+
     // Valida un campo de texto obligatorio. Devuelve true si es válido.
     function validarRequerido(input, span, msg) {
         if (!input) return true;
@@ -345,9 +375,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.ok) {
                     window.actualizarContadorCarrito(data.total_items);
+                    avisar('success', 'Producto agregado al carrito');
                     btn.textContent = '¡Agregado!';
                 } else {
-                    btn.textContent = data.mensaje || 'Sin stock';
+                    avisar('error', data.mensaje || 'No se pudo agregar');
+                    btn.textContent = textoOriginal;
                 }
                 setTimeout(() => {
                     btn.textContent = textoOriginal;
@@ -355,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 1500);
             })
             .catch(() => {
+                avisar('error', 'No se pudo agregar el producto');
                 btn.textContent = textoOriginal;
                 btn.disabled = false;
             });
@@ -398,10 +431,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const btnVaciar = e.target.closest('#btnVaciarCarrito');
-        if (btnVaciar && confirm('¿Vaciar todo el carrito?')) {
-            postForm('/carrito/vaciar', {})
-                .then(data => { if (data.ok) location.reload(); })
-                .catch(() => {});
+        if (btnVaciar) {
+            confirmarAccion('¿Vaciar todo el carrito?').then(ok => {
+                if (!ok) return;
+                postForm('/carrito/vaciar', {})
+                    .then(data => { if (data.ok) location.reload(); })
+                    .catch(() => {});
+            });
         }
     });
 
@@ -449,9 +485,81 @@ document.addEventListener('DOMContentLoaded', () => {
        ============================================================ */
     document.querySelectorAll('form.js-confirm').forEach(form => {
         form.addEventListener('submit', e => {
-            if (!confirm(form.dataset.mensaje || '¿Confirmar esta acción?')) e.preventDefault();
+            e.preventDefault();
+            confirmarAccion(form.dataset.mensaje || '¿Confirmar esta acción?').then(ok => {
+                if (ok) form.submit(); // submit() no vuelve a disparar este listener
+            });
         });
     });
+
+    /* ============================================================
+       Menú hamburguesa (móvil)
+       ============================================================ */
+    const hamburguesaBtn = document.getElementById('hamburguesaBtn');
+    const menuMovil      = document.getElementById('menuMovil');
+
+    if (hamburguesaBtn && menuMovil) {
+        hamburguesaBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            const abierto = !menuMovil.hidden;
+            menuMovil.hidden = abierto;
+            hamburguesaBtn.setAttribute('aria-expanded', String(!abierto));
+        });
+
+        document.addEventListener('click', e => {
+            if (!menuMovil.hidden && !menuMovil.contains(e.target)) {
+                menuMovil.hidden = true;
+                hamburguesaBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                menuMovil.hidden = true;
+                hamburguesaBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    /* ============================================================
+       Admin — orden manual: filas dinámicas y total estimado
+       ============================================================ */
+    const ordenItems     = document.getElementById('ordenItems');
+    const btnAgregarItem = document.getElementById('btnAgregarItem');
+
+    if (ordenItems && btnAgregarItem) {
+        const recalcularTotal = () => {
+            let total = 0;
+            ordenItems.querySelectorAll('.orden-items__fila').forEach(fila => {
+                const opcion = fila.querySelector('select').selectedOptions[0];
+                const precio = parseFloat(opcion?.dataset.precio || 0);
+                const cant   = parseInt(fila.querySelector('input').value, 10) || 0;
+                total += precio * cant;
+            });
+            const el = document.getElementById('ordenTotal');
+            if (el) el.textContent = 'US$ ' + total.toLocaleString('es-UY', { minimumFractionDigits: 2 });
+        };
+
+        btnAgregarItem.addEventListener('click', () => {
+            const plantilla = ordenItems.querySelector('.orden-items__fila');
+            const fila = plantilla.cloneNode(true);
+            fila.querySelector('select').value = '';
+            fila.querySelector('input').value = 1;
+            ordenItems.appendChild(fila);
+            recalcularTotal();
+        });
+
+        ordenItems.addEventListener('click', e => {
+            const quitar = e.target.closest('.orden-items__quitar');
+            if (quitar && ordenItems.querySelectorAll('.orden-items__fila').length > 1) {
+                quitar.closest('.orden-items__fila').remove();
+                recalcularTotal();
+            }
+        });
+
+        ordenItems.addEventListener('input', recalcularTotal);
+        ordenItems.addEventListener('change', recalcularTotal);
+    }
 
     /* ============================================================
        Checkout — formato de tarjeta y validación
@@ -616,12 +724,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return d;
         });
 
+        // Desplazamiento en píxeles: translateX(%) es inconsistente entre
+        // navegadores cuando el track es más ancho que el visor (Safari).
         function goTo(n) {
             current = (n + total) % total;
-            sliderTrack.style.transform = `translateX(-${current * 100}%)`;
+            const ancho = sliderTrack.parentElement.clientWidth;
+            sliderTrack.style.transform = `translateX(-${current * ancho}px)`;
             dots.forEach((d, i) => d.classList.toggle('activo', i === current));
             resetTimer();
         }
+
+        // Recalcular al rotar el teléfono o cambiar el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            const ancho = sliderTrack.parentElement.clientWidth;
+            sliderTrack.style.transition = 'none';
+            sliderTrack.style.transform = `translateX(-${current * ancho}px)`;
+            sliderTrack.getBoundingClientRect();
+            sliderTrack.style.transition = '';
+        });
 
         function resetTimer() {
             clearInterval(timer);

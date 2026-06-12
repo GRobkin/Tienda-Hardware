@@ -36,9 +36,12 @@ $stock = (int) $producto->stock;
 
         <div class="producto-detalle__info">
 
-            <?php if ($producto->subcategoria): ?>
-                <p class="page-header__overline"><?= s($producto->subcategoria->nombre) ?></p>
-            <?php endif; ?>
+            <p class="page-header__overline">
+                <?= s($producto->subcategoria->nombre ?? '') ?>
+                <?php if (!empty($producto->marca)): ?>
+                    <span class="producto-detalle__marca">· <?= s($producto->marca) ?></span>
+                <?php endif; ?>
+            </p>
 
             <h1 class="producto-detalle__titulo"><?= s($producto->nombre) ?></h1>
 
@@ -53,7 +56,9 @@ $stock = (int) $producto->stock;
             <?php endif; ?>
 
             <div class="producto-detalle__compra">
-                <?php if ($stock > 0): ?>
+                <?php if (is_admin()): ?>
+                    <p class="campo__ayuda">Estás en una cuenta de administrador: solo los clientes pueden comprar.</p>
+                <?php elseif ($stock > 0): ?>
                     <div class="cantidad">
                         <button type="button" class="cantidad__btn cantidad__btn--menos" aria-label="Restar una unidad">−</button>
                         <input class="cantidad__input"

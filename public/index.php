@@ -83,22 +83,10 @@ $router->get('/admin/productos/editar',    [AdminController::class, 'editarProdu
 $router->post('/admin/productos/editar',   [AdminController::class, 'editarProducto']);
 $router->post('/admin/productos/eliminar', [AdminController::class, 'eliminarProducto']);
 
-// ── Admin: categorías ─────────────────────────────────────
-$router->get('/admin/categorias',           [AdminController::class, 'categorias']);
-$router->post('/admin/categorias/crear',    [AdminController::class, 'crearCategoria']);
-$router->get('/admin/categorias/editar',    [AdminController::class, 'editarCategoria']);
-$router->post('/admin/categorias/editar',   [AdminController::class, 'editarCategoria']);
-$router->post('/admin/categorias/eliminar', [AdminController::class, 'eliminarCategoria']);
-
-// ── Admin: subcategorías ──────────────────────────────────
-$router->get('/admin/subcategorias',           [AdminController::class, 'subcategorias']);
-$router->post('/admin/subcategorias/crear',    [AdminController::class, 'crearSubcategoria']);
-$router->get('/admin/subcategorias/editar',    [AdminController::class, 'editarSubcategoria']);
-$router->post('/admin/subcategorias/editar',   [AdminController::class, 'editarSubcategoria']);
-$router->post('/admin/subcategorias/eliminar', [AdminController::class, 'eliminarSubcategoria']);
-
 // ── Admin: órdenes y usuarios ─────────────────────────────
-$router->get('/admin/ordenes',  [AdminController::class, 'ordenes']);
-$router->get('/admin/usuarios', [AdminController::class, 'usuarios']);
+$router->get('/admin/ordenes',        [AdminController::class, 'ordenes']);
+$router->get('/admin/ordenes/crear',  [AdminController::class, 'crearOrden']);
+$router->post('/admin/ordenes/crear', [AdminController::class, 'crearOrden']);
+$router->get('/admin/usuarios',       [AdminController::class, 'usuarios']);
 
 $router->comprobarRutas();
