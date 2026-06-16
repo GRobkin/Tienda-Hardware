@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: usuario/modificar.php
  * Variables: $usuario, $alertas
@@ -26,19 +27,19 @@
                 <div class="campo">
                     <label class="campo__label" for="nombre">Nombre</label>
                     <input class="campo__input" id="nombre" name="nombre" type="text"
-                           value="<?= s($usuario->nombre) ?>" autocomplete="given-name" required>
+                        value="<?= s($usuario->nombre) ?>" autocomplete="given-name" required>
                 </div>
 
                 <div class="campo">
                     <label class="campo__label" for="apellido">Apellido</label>
                     <input class="campo__input" id="apellido" name="apellido" type="text"
-                           value="<?= s($usuario->apellido) ?>" autocomplete="family-name" required>
+                        value="<?= s($usuario->apellido) ?>" autocomplete="family-name" required>
                 </div>
 
                 <div class="campo">
                     <label class="campo__label" for="email">Correo electrónico</label>
                     <input class="campo__input" id="email" name="email" type="email"
-                           value="<?= s($usuario->email) ?>" autocomplete="email" required>
+                        value="<?= s($usuario->email) ?>" autocomplete="email" required>
                 </div>
 
                 <button type="submit" class="boton boton--primario">Guardar cambios</button>
@@ -55,13 +56,13 @@
                 <div class="campo">
                     <label class="campo__label" for="password_actual">Contraseña actual</label>
                     <input class="campo__input" id="password_actual" name="password_actual"
-                           type="password" autocomplete="current-password" required>
+                        type="password" autocomplete="current-password" required>
                 </div>
 
                 <div class="campo">
                     <label class="campo__label" for="password_nuevo">Nueva contraseña</label>
                     <input class="campo__input" id="password_nuevo" name="password_nuevo"
-                           type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required>
+                        type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required>
                 </div>
 
                 <button type="submit" class="boton boton--secundario">Cambiar contraseña</button>

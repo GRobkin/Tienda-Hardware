@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: admin/ordenes/crear.php
  * Variables: $usuarios, $productos, $alertas
@@ -25,9 +26,9 @@
                         <select class="campo__select" id="usuario_id" name="usuario_id" required>
                             <option value="">— Elegir cliente —</option>
                             <?php foreach ($usuarios as $usuario): ?>
-                            <option value="<?= (int) $usuario->id ?>">
-                                <?= s($usuario->nombre . ' ' . $usuario->apellido) ?> (<?= s($usuario->email) ?>)
-                            </option>
+                                <option value="<?= (int) $usuario->id ?>">
+                                    <?= s($usuario->nombre . ' ' . $usuario->apellido) ?> (<?= s($usuario->email) ?>)
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -49,15 +50,15 @@
                             <select class="campo__select" name="producto_id[]" required>
                                 <option value="">— Elegir producto —</option>
                                 <?php foreach ($productos as $producto): ?>
-                                <option value="<?= (int) $producto->id ?>" data-precio="<?= s($producto->precio) ?>">
-                                    <?= s($producto->nombre) ?> — <?= formatear_precio($producto->precio) ?> (stock: <?= (int) $producto->stock ?>)
-                                </option>
+                                    <option value="<?= (int) $producto->id ?>" data-precio="<?= s($producto->precio) ?>">
+                                        <?= s($producto->nombre) ?> — <?= formatear_precio($producto->precio) ?> (stock: <?= (int) $producto->stock ?>)
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                             <input class="campo__input" type="number" name="cantidad[]" min="1" value="1"
-                                   aria-label="Cantidad" required>
+                                aria-label="Cantidad" required>
                             <button type="button" class="boton boton--peligro boton--sm orden-items__quitar"
-                                    aria-label="Quitar fila">✕</button>
+                                aria-label="Quitar fila">✕</button>
                         </div>
                     </div>
 

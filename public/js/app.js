@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ============================================================
-       Helpers
-       ============================================================ */
+    /* Helpers */
 
     // POST con cuerpo form-urlencoded (llega como $_POST en PHP).
     // Adjunta siempre el token CSRF del <meta name="csrf">.
@@ -34,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timer: 2200,
             timerProgressBar: true,
             showConfirmButton: false
-          })
+        })
         : null;
 
     function avisar(icon, title) {
@@ -67,24 +65,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function validarEmailCampo(input, span) {
         if (!input) return true;
         const val = input.value.trim();
-        if (!val)                { marcarError(input, span, 'El correo es obligatorio'); return false; }
-        if (!EMAIL_RE.test(val)) { marcarError(input, span, 'El correo no es válido');   return false; }
+        if (!val) { marcarError(input, span, 'El correo es obligatorio'); return false; }
+        if (!EMAIL_RE.test(val)) { marcarError(input, span, 'El correo no es válido'); return false; }
         limpiarError(input, span);
         return true;
     }
 
     function validarPasswordCampo(input, span, minimo = 6) {
         if (!input) return true;
-        if (!input.value)                 { marcarError(input, span, 'La contraseña es obligatoria'); return false; }
-        if (input.value.length < minimo)  { marcarError(input, span, `Mínimo ${minimo} caracteres`);  return false; }
+        if (!input.value) { marcarError(input, span, 'La contraseña es obligatoria'); return false; }
+        if (input.value.length < minimo) { marcarError(input, span, `Mínimo ${minimo} caracteres`); return false; }
         limpiarError(input, span);
         return true;
     }
 
     function validarCoincidencia(input, original, span) {
         if (!input) return true;
-        if (!input.value)                       { marcarError(input, span, 'Repetí la contraseña');        return false; }
-        if (input.value !== original.value)     { marcarError(input, span, 'Las contraseñas no coinciden'); return false; }
+        if (!input.value) { marcarError(input, span, 'Repetí la contraseña'); return false; }
+        if (input.value !== original.value) { marcarError(input, span, 'Las contraseñas no coinciden'); return false; }
         limpiarError(input, span);
         return true;
     }
@@ -96,13 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Dark mode
-       ============================================================ */
-    const html     = document.documentElement;
+    /* Dark mode */
+    const html = document.documentElement;
     const themeBtn = document.getElementById('themeBtn');
     const iconMoon = document.getElementById('iconMoon');
-    const iconSun  = document.getElementById('iconSun');
+    const iconSun = document.getElementById('iconSun');
 
     aplicarTema(localStorage.getItem('tema') || 'light');
 
@@ -116,15 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
         html.dataset.theme = tema;
         if (!iconMoon || !iconSun) return;
         iconMoon.style.display = tema === 'dark' ? 'none' : 'inline-block';
-        iconSun.style.display  = tema === 'dark' ? 'inline-block' : 'none';
+        iconSun.style.display = tema === 'dark' ? 'inline-block' : 'none';
     }
 
-    /* ============================================================
-       Panel catálogo
-       ============================================================ */
-    const catBtn       = document.getElementById('catBtn');
-    const panel        = document.getElementById('catalogoPanel');
-    const overlay      = document.getElementById('navOverlay');
+    /* Panel catálogo */
+    const catBtn = document.getElementById('catBtn');
+    const panel = document.getElementById('catalogoPanel');
+    const overlay = document.getElementById('navOverlay');
     const catalogoSubs = document.getElementById('catalogoSubs');
 
     if (catBtn && panel) {
@@ -154,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function abrirPanel() {
-        panel.hidden   = false;
+        panel.hidden = false;
         overlay.hidden = false;
         catBtn.classList.add('open');
         catBtn.setAttribute('aria-expanded', 'true');
@@ -215,13 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
         catalogoSubs.appendChild(grid);
     }
 
-    /* ============================================================
-       Dropdown usuario
-       ============================================================ */
+    /* Dropdown usuario */
     const userMenu = document.getElementById('userMenu');
 
     if (userMenu) {
-        const userBtn      = userMenu.querySelector('.nav__btn--user');
+        const userBtn = userMenu.querySelector('.nav__btn--user');
         const userDropdown = userMenu.querySelector('.nav__dropdown');
 
         userBtn?.addEventListener('click', e => {
@@ -236,12 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Buscador en tiempo real
-       ============================================================ */
-    const inputBuscador      = document.getElementById('buscador-input');
+    /* Buscador en tiempo real */
+    const inputBuscador = document.getElementById('buscador-input');
     const resultadosBuscador = document.getElementById('buscador-resultados');
-    const btnBuscar          = document.getElementById('btnBuscar');
+    const btnBuscar = document.getElementById('btnBuscar');
 
     if (inputBuscador && resultadosBuscador) {
         let timeoutBuscador;
@@ -283,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function buscar(q) {
         try {
-            const res  = await fetch(`/buscar?q=${encodeURIComponent(q)}`);
+            const res = await fetch(`/buscar?q=${encodeURIComponent(q)}`);
             const data = await res.json();
             renderBuscador(data);
         } catch {
@@ -311,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.className = 'buscador__item';
 
             const img = document.createElement('img');
-            img.src = `/img/productos/${prod.imagen}`;
+            img.src = prod.imagen; // ya viene como URL lista desde el servidor
             img.alt = prod.nombre;
             img.onerror = () => { img.onerror = null; img.src = '/img/placeholder.svg'; };
 
@@ -341,9 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultadosBuscador.hidden = false;
     }
 
-    /* ============================================================
-       Carrito — contador
-       ============================================================ */
+    /* Carrito — contador */
     window.actualizarContadorCarrito = function (total) {
         const badge = document.getElementById('contadorCarrito');
         if (!badge) return;
@@ -351,9 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.hidden = total === 0;
     };
 
-    /* ============================================================
-       Carrito — agregar (botones .agregar-carrito en toda la web)
-       ============================================================ */
+    /* Carrito — agregar (botones .agregar-carrito en toda la web) */
     document.addEventListener('click', e => {
         const btn = e.target.closest('.agregar-carrito');
         if (!btn) return;
@@ -393,20 +379,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
 
-    /* ============================================================
-       Carrito — stepper genérico de cantidad (.cantidad)
-       ============================================================ */
+    /* Carrito — stepper genérico de cantidad (.cantidad) */
     document.addEventListener('click', e => {
         const btnStep = e.target.closest('.cantidad__btn');
         if (!btnStep) return;
 
-        const wrap  = btnStep.closest('.cantidad');
+        const wrap = btnStep.closest('.cantidad');
         const input = wrap?.querySelector('.cantidad__input');
         if (!input) return;
 
         const delta = btnStep.classList.contains('cantidad__btn--mas') ? 1 : -1;
-        const min   = parseInt(input.min, 10) || 1;
-        const max   = parseInt(input.max, 10) || 99;
+        const min = parseInt(input.min, 10) || 1;
+        const max = parseInt(input.max, 10) || 99;
         const nuevo = Math.min(max, Math.max(min, (parseInt(input.value, 10) || min) + delta));
         input.value = nuevo;
 
@@ -415,19 +399,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (productoId) {
             postForm('/carrito/actualizar', { id: productoId, cantidad: nuevo })
                 .then(data => { if (data.ok) location.reload(); })
-                .catch(() => {});
+                .catch(() => { });
         }
     });
 
-    /* ============================================================
-       Carrito — eliminar item / vaciar (página del carrito)
-       ============================================================ */
+    /* Carrito — eliminar item / vaciar (página del carrito) */
     document.addEventListener('click', e => {
         const btnElim = e.target.closest('.carrito__btn-eliminar');
         if (btnElim) {
             postForm('/carrito/eliminar', { id: btnElim.dataset.id })
                 .then(data => { if (data.ok) location.reload(); })
-                .catch(() => {});
+                .catch(() => { });
         }
 
         const btnVaciar = e.target.closest('#btnVaciarCarrito');
@@ -436,22 +418,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!ok) return;
                 postForm('/carrito/vaciar', {})
                     .then(data => { if (data.ok) location.reload(); })
-                    .catch(() => {});
+                    .catch(() => { });
             });
         }
     });
 
-    /* ============================================================
-       Admin — selects dependientes categoría → subcategoría
-       ============================================================ */
-    const selCategoria    = document.getElementById('selectCategoria');
+    /* Admin — selects dependientes categoría → subcategoría */
+    const selCategoria = document.getElementById('selectCategoria');
     const selSubcategoria = document.getElementById('selectSubcategoria');
 
     if (selCategoria && selSubcategoria && window.ADMIN_SUBCATS) {
         const filtrarSubcategorias = () => {
-            const catId  = parseInt(selCategoria.value, 10);
+            const catId = parseInt(selCategoria.value, 10);
             const actual = parseInt(selSubcategoria.dataset.actual, 10) || null;
-            const subs   = window.ADMIN_SUBCATS.filter(s => s.categoria_id === catId);
+            const subs = window.ADMIN_SUBCATS.filter(s => s.categoria_id === catId);
 
             selSubcategoria.innerHTML = '';
             if (subs.length === 0) {
@@ -467,10 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
         filtrarSubcategorias();
     }
 
-    /* ============================================================
-       Admin — vista previa de imagen al subir
-       ============================================================ */
-    const inputImagen   = document.getElementById('inputImagen');
+    /* Admin — vista previa de imagen al subir */
+    const inputImagen = document.getElementById('inputImagen');
     const previewImagen = document.getElementById('previewImagen');
 
     if (inputImagen && previewImagen) {
@@ -480,9 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Formularios con confirmación (eliminar, etc.)
-       ============================================================ */
+    /* Formularios con confirmación (eliminar, etc.) */
     document.querySelectorAll('form.js-confirm').forEach(form => {
         form.addEventListener('submit', e => {
             e.preventDefault();
@@ -492,11 +468,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ============================================================
-       Menú hamburguesa (móvil)
-       ============================================================ */
+    /* Menú hamburguesa (móvil) */
     const hamburguesaBtn = document.getElementById('hamburguesaBtn');
-    const menuMovil      = document.getElementById('menuMovil');
+    const menuMovil = document.getElementById('menuMovil');
 
     if (hamburguesaBtn && menuMovil) {
         hamburguesaBtn.addEventListener('click', e => {
@@ -521,10 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Admin — orden manual: filas dinámicas y total estimado
-       ============================================================ */
-    const ordenItems     = document.getElementById('ordenItems');
+    /* Admin — orden manual: filas dinámicas y total estimado */
+    const ordenItems = document.getElementById('ordenItems');
     const btnAgregarItem = document.getElementById('btnAgregarItem');
 
     if (ordenItems && btnAgregarItem) {
@@ -533,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ordenItems.querySelectorAll('.orden-items__fila').forEach(fila => {
                 const opcion = fila.querySelector('select').selectedOptions[0];
                 const precio = parseFloat(opcion?.dataset.precio || 0);
-                const cant   = parseInt(fila.querySelector('input').value, 10) || 0;
+                const cant = parseInt(fila.querySelector('input').value, 10) || 0;
                 total += precio * cant;
             });
             const el = document.getElementById('ordenTotal');
@@ -561,9 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ordenItems.addEventListener('change', recalcularTotal);
     }
 
-    /* ============================================================
-       Checkout — formato de tarjeta y validación
-       ============================================================ */
+    /* Checkout — formato de tarjeta y validación */
     const formCheckout = document.getElementById('formCheckout');
 
     if (formCheckout) {
@@ -580,8 +550,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function validarTarjeta() {
             const digitos = (iTarjeta?.value || '').replace(/\D/g, '');
-            if (!digitos)             { marcarError(iTarjeta, eTarjeta, 'El número de tarjeta es obligatorio'); return false; }
-            if (digitos.length !== 16) { marcarError(iTarjeta, eTarjeta, 'Debe tener 16 dígitos');               return false; }
+            if (!digitos) { marcarError(iTarjeta, eTarjeta, 'El número de tarjeta es obligatorio'); return false; }
+            if (digitos.length !== 16) { marcarError(iTarjeta, eTarjeta, 'Debe tener 16 dígitos'); return false; }
             limpiarError(iTarjeta, eTarjeta);
             return true;
         }
@@ -598,21 +568,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Validación — Login
-       ============================================================ */
+    /* Validación — Login */
     const formLogin = document.getElementById('formLogin');
 
     if (formLogin) {
         const iEmail = document.getElementById('email');
-        const iPass  = document.getElementById('password');
+        const iPass = document.getElementById('password');
         const eEmail = document.getElementById('errorEmail');
-        const ePass  = document.getElementById('errorPass');
+        const ePass = document.getElementById('errorPass');
 
         togglePassword('togglePass', iPass);
 
         iEmail?.addEventListener('blur', () => validarEmailCampo(iEmail, eEmail));
-        iPass?.addEventListener('blur',  () => validarRequerido(iPass, ePass, 'La contraseña es obligatoria'));
+        iPass?.addEventListener('blur', () => validarRequerido(iPass, ePass, 'La contraseña es obligatoria'));
 
         formLogin.addEventListener('submit', e => {
             const ok = [
@@ -623,31 +591,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Validación — Registro
-       ============================================================ */
+    /* Validación — Registro */
     const formRegistro = document.getElementById('formRegistro');
 
     if (formRegistro) {
-        const iNombre   = document.getElementById('nombre');
+        const iNombre = document.getElementById('nombre');
         const iApellido = document.getElementById('apellido');
-        const iEmail    = document.getElementById('email');
-        const iPass     = document.getElementById('password');
-        const iPass2    = document.getElementById('password2');
-        const eNombre   = document.getElementById('errorNombre');
+        const iEmail = document.getElementById('email');
+        const iPass = document.getElementById('password');
+        const iPass2 = document.getElementById('password2');
+        const eNombre = document.getElementById('errorNombre');
         const eApellido = document.getElementById('errorApellido');
-        const eEmail    = document.getElementById('errorEmail');
-        const ePass     = document.getElementById('errorPass');
-        const ePass2    = document.getElementById('errorPass2');
+        const eEmail = document.getElementById('errorEmail');
+        const ePass = document.getElementById('errorPass');
+        const ePass2 = document.getElementById('errorPass2');
 
-        togglePassword('togglePass',  iPass);
+        togglePassword('togglePass', iPass);
         togglePassword('togglePass2', iPass2);
 
-        iNombre?.addEventListener('blur',   () => validarRequerido(iNombre, eNombre, 'El nombre es obligatorio'));
+        iNombre?.addEventListener('blur', () => validarRequerido(iNombre, eNombre, 'El nombre es obligatorio'));
         iApellido?.addEventListener('blur', () => validarRequerido(iApellido, eApellido, 'El apellido es obligatorio'));
-        iEmail?.addEventListener('blur',    () => validarEmailCampo(iEmail, eEmail));
-        iPass?.addEventListener('blur',     () => validarPasswordCampo(iPass, ePass));
-        iPass2?.addEventListener('blur',    () => validarCoincidencia(iPass2, iPass, ePass2));
+        iEmail?.addEventListener('blur', () => validarEmailCampo(iEmail, eEmail));
+        iPass?.addEventListener('blur', () => validarPasswordCampo(iPass, ePass));
+        iPass2?.addEventListener('blur', () => validarCoincidencia(iPass2, iPass, ePass2));
 
         formRegistro.addEventListener('submit', e => {
             const ok = [
@@ -661,58 +627,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============================================================
-       Validación — Olvidé mi contraseña
-       ============================================================ */
-    const formOlvide = document.getElementById('formOlvide');
-
-    if (formOlvide) {
-        const iEmail = document.getElementById('email');
-        const eEmail = document.getElementById('errorEmail');
-
-        iEmail?.addEventListener('blur', () => validarEmailCampo(iEmail, eEmail));
-
-        formOlvide.addEventListener('submit', e => {
-            if (!validarEmailCampo(iEmail, eEmail)) e.preventDefault();
-        });
-    }
-
-    /* ============================================================
-       Validación — Restablecer contraseña
-       ============================================================ */
-    const formRestablecer = document.getElementById('formRestablecer');
-
-    if (formRestablecer) {
-        const iPass  = document.getElementById('password');
-        const iPass2 = document.getElementById('password2');
-        const ePass  = document.getElementById('errorPass');
-        const ePass2 = document.getElementById('errorPass2');
-
-        togglePassword('togglePass',  iPass);
-        togglePassword('togglePass2', iPass2);
-
-        iPass?.addEventListener('blur',  () => validarPasswordCampo(iPass, ePass));
-        iPass2?.addEventListener('blur', () => validarCoincidencia(iPass2, iPass, ePass2));
-
-        formRestablecer.addEventListener('submit', e => {
-            const ok = [
-                validarPasswordCampo(iPass, ePass),
-                validarCoincidencia(iPass2, iPass, ePass2)
-            ];
-            if (ok.includes(false)) e.preventDefault();
-        });
-    }
-
-    /* ============================================================
-       Slider de banners (home)
-       ============================================================ */
+    /* Slider de banners (home) */
     const sliderTrack = document.getElementById('sliderTrack');
-    const sliderDots  = document.getElementById('sliderDots');
+    const sliderDots = document.getElementById('sliderDots');
 
     if (sliderTrack && sliderDots) {
         const slides = sliderTrack.querySelectorAll('.slider__slide');
-        const total  = slides.length;
-        let current  = 0;
+        const total = slides.length;
+        let current = 0;
         let timer;
 
         const dots = Array.from({ length: total }, (_, i) => {

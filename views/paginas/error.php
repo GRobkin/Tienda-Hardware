@@ -1,4 +1,6 @@
-<?php /** Vista: paginas/error.php (404) */ ?>
+<?php
+
+/** Vista: paginas/error.php (404) */ ?>
 
 <div class="contenedor">
 

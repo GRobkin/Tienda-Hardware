@@ -1,4 +1,6 @@
-<?php /** Vista: auth/registro.php — Variables: $alertas, $usuario */ ?>
+<?php
+
+/** Vista: auth/registro.php — Variables: $alertas, $usuario */ ?>
 
 <div class="auth">
     <div class="auth__card">
@@ -17,39 +19,39 @@
             <div class="auth__campo">
                 <label class="auth__label" for="nombre">Nombre</label>
                 <input class="auth__input"
-                       id="nombre"
-                       name="nombre"
-                       type="text"
-                       placeholder="Tu nombre"
-                       value="<?= s($usuario->nombre ?? '') ?>"
-                       autocomplete="given-name"
-                       required>
+                    id="nombre"
+                    name="nombre"
+                    type="text"
+                    placeholder="Tu nombre"
+                    value="<?= s($usuario->nombre ?? '') ?>"
+                    autocomplete="given-name"
+                    required>
                 <span class="auth__error" id="errorNombre"></span>
             </div>
 
             <div class="auth__campo">
                 <label class="auth__label" for="apellido">Apellido</label>
                 <input class="auth__input"
-                       id="apellido"
-                       name="apellido"
-                       type="text"
-                       placeholder="Tu apellido"
-                       value="<?= s($usuario->apellido ?? '') ?>"
-                       autocomplete="family-name"
-                       required>
+                    id="apellido"
+                    name="apellido"
+                    type="text"
+                    placeholder="Tu apellido"
+                    value="<?= s($usuario->apellido ?? '') ?>"
+                    autocomplete="family-name"
+                    required>
                 <span class="auth__error" id="errorApellido"></span>
             </div>
 
             <div class="auth__campo">
                 <label class="auth__label" for="email">Correo electrónico</label>
                 <input class="auth__input"
-                       id="email"
-                       name="email"
-                       type="email"
-                       placeholder="tu@correo.com"
-                       value="<?= s($usuario->email ?? '') ?>"
-                       autocomplete="email"
-                       required>
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="tu@correo.com"
+                    value="<?= s($usuario->email ?? '') ?>"
+                    autocomplete="email"
+                    required>
                 <span class="auth__error" id="errorEmail"></span>
             </div>
 
@@ -57,12 +59,12 @@
                 <label class="auth__label" for="password">Contraseña</label>
                 <div class="auth__input-wrap">
                     <input class="auth__input"
-                           id="password"
-                           name="password"
-                           type="password"
-                           placeholder="Mínimo 6 caracteres"
-                           autocomplete="new-password"
-                           required>
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Mínimo 6 caracteres"
+                        autocomplete="new-password"
+                        required>
                     <button type="button" class="auth__toggle-pass" id="togglePass" aria-label="Mostrar contraseña">
                         <i class="nav__icon nav__icon--eye" id="iconEye"></i>
                     </button>
@@ -74,12 +76,12 @@
                 <label class="auth__label" for="password2">Repetir contraseña</label>
                 <div class="auth__input-wrap">
                     <input class="auth__input"
-                           id="password2"
-                           name="password2"
-                           type="password"
-                           placeholder="Repetí tu contraseña"
-                           autocomplete="new-password"
-                           required>
+                        id="password2"
+                        name="password2"
+                        type="password"
+                        placeholder="Repetí tu contraseña"
+                        autocomplete="new-password"
+                        required>
                     <button type="button" class="auth__toggle-pass" id="togglePass2" aria-label="Mostrar contraseña">
                         <i class="nav__icon nav__icon--eye"></i>
                     </button>

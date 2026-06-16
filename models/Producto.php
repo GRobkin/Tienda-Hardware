@@ -23,8 +23,6 @@ class Producto extends ActiveRecord
     // Columnas extra de JOINs (buscar): no se guardan en la BD
     public $subcategoria_nombre;
     public $categoria_nombre;
-    // Columna de solo lectura
-    public $creado_en;
 
     public function __construct($args = [])
     {
@@ -76,7 +74,7 @@ class Producto extends ActiveRecord
      * @param float|null $precio_min
      * @param float|null $precio_max
      */
-    private static function whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max) : string
+    private static function whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max): string
     {
         $ids = array_map('intval', $subcategoria_ids);
         $where = ' WHERE subcategoria_id IN (' . (implode(',', $ids) ?: '0') . ')';
@@ -95,23 +93,23 @@ class Producto extends ActiveRecord
     public static function filtrar($subcategoria_ids, $marcas, $precio_min, $precio_max, $por_pagina, $offset)
     {
         $query = 'SELECT * FROM productos'
-               . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max)
-               . ' ORDER BY id DESC LIMIT ' . (int) $por_pagina . ' OFFSET ' . (int) $offset;
+            . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max)
+            . ' ORDER BY id DESC LIMIT ' . (int) $por_pagina . ' OFFSET ' . (int) $offset;
         return self::consultarSQL($query);
     }
 
     // Total de resultados del listado filtrado (para la paginación)
-    public static function filtrarTotal($subcategoria_ids, $marcas, $precio_min, $precio_max) : int
+    public static function filtrarTotal($subcategoria_ids, $marcas, $precio_min, $precio_max): int
     {
         $query = 'SELECT COUNT(*) FROM productos'
-               . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max);
+            . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max);
         $resultado = self::$db->query($query);
         $total = $resultado->fetch_array();
         return (int) array_shift($total);
     }
 
     // Marcas disponibles dentro del alcance del listado (para el sidebar)
-    public static function marcasDisponibles($subcategoria_ids) : array
+    public static function marcasDisponibles($subcategoria_ids): array
     {
         $ids = array_map('intval', $subcategoria_ids);
         $query = "SELECT DISTINCT marca FROM productos

@@ -1,14 +1,23 @@
 <?php
+
 namespace MVC;
 
-class Router {
+class Router
+{
     public array $getRoutes  = [];
     public array $postRoutes = [];
 
-    public function get($url, $fn)  { $this->getRoutes[$url]  = $fn; }
-    public function post($url, $fn) { $this->postRoutes[$url] = $fn; }
+    public function get($url, $fn)
+    {
+        $this->getRoutes[$url]  = $fn;
+    }
+    public function post($url, $fn)
+    {
+        $this->postRoutes[$url] = $fn;
+    }
 
-    public function comprobarRutas() {
+    public function comprobarRutas()
+    {
         $url_actual = $_SERVER['PATH_INFO'] ?? '/';
         $method     = $_SERVER['REQUEST_METHOD'];
 
@@ -16,21 +25,22 @@ class Router {
             ? ($this->getRoutes[$url_actual]  ?? null)
             : ($this->postRoutes[$url_actual] ?? null);
 
-        if($fn) {
+        if ($fn) {
             call_user_func($fn, $this);
         } else {
             header('Location: /404');
         }
     }
 
-    public function render($view, $datos = []) {
-        foreach($datos as $key => $value) {
+    public function render($view, $datos = [])
+    {
+        foreach ($datos as $key => $value) {
             $$key = $value;
         }
 
         ob_start();
         include __DIR__ . "/../views/{$view}.php";
-        $contenido = ob_get_clean();// Limpia el Buffer
+        $contenido = ob_get_clean(); // Limpia el Buffer
 
         include __DIR__ . "/../views/layout.php";
     }

@@ -10,15 +10,12 @@ USE tienda_hardware;
 -- Tabla: usuarios
 -- ------------------------------------------------------------
 CREATE TABLE usuarios (
-    id          INT AUTO_INCREMENT PRIMARY KEY,
-    nombre      VARCHAR(60)  NOT NULL,
-    apellido    VARCHAR(60)  NOT NULL,
-    email       VARCHAR(100) NOT NULL UNIQUE,
-    password    VARCHAR(255) NOT NULL,
-    token       VARCHAR(40)  DEFAULT '',
-    confirmado  TINYINT(1)   NOT NULL DEFAULT 0,
-    admin       TINYINT(1)   NOT NULL DEFAULT 0,
-    creado_en   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    nombre    VARCHAR(60)  NOT NULL,
+    apellido  VARCHAR(60)  NOT NULL,
+    email     VARCHAR(100) NOT NULL UNIQUE,
+    password  VARCHAR(255) NOT NULL,
+    admin     TINYINT(1)   NOT NULL DEFAULT 0
 );
 
 -- ------------------------------------------------------------
@@ -110,7 +107,6 @@ CREATE TABLE productos (
     imagen          VARCHAR(255)  DEFAULT 'default.webp',
     subcategoria_id INT           NOT NULL,
     destacado       TINYINT(1)    NOT NULL DEFAULT 0,
-    creado_en       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_producto_subcategoria FOREIGN KEY (subcategoria_id) REFERENCES subcategorias(id)
 );
 
@@ -227,6 +223,6 @@ CREATE TABLE orden_items (
 -- ------------------------------------------------------------
 -- Usuario admin por defecto  (password: admin123)
 -- ------------------------------------------------------------
-INSERT INTO usuarios (nombre, apellido, email, password, confirmado, admin) VALUES
+INSERT INTO usuarios (nombre, apellido, email, password, admin) VALUES
     ('Admin', 'Tienda', 'admin@tienda.com',
-     '$2y$10$8cQZ8am/g6M1vCHHv6F4n.olGh9zTPERLy.nfWvHxq9Nr9ISeFqJ6', 1, 1);
+     '$2y$10$8cQZ8am/g6M1vCHHv6F4n.olGh9zTPERLy.nfWvHxq9Nr9ISeFqJ6', 1);

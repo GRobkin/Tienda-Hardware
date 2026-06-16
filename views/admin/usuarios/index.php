@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: admin/usuarios/index.php
  * Variables: $usuarios
@@ -21,26 +22,16 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Email</th>
-                            <th>Confirmado</th>
                             <th>Rol</th>
-                            <th>Alta</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($usuarios as $usuario): ?>
-                        <tr>
-                            <td><?= s($usuario->nombre . ' ' . $usuario->apellido) ?></td>
-                            <td><?= s($usuario->email) ?></td>
-                            <td>
-                                <?php if ($usuario->confirmado): ?>
-                                    <span class="estado estado--pagado">Sí</span>
-                                <?php else: ?>
-                                    <span class="estado estado--pendiente">Pendiente</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= $usuario->admin ? 'Admin' : 'Cliente' ?></td>
-                            <td class="admin__fecha"><?= s($usuario->creado_en ?? '—') ?></td>
-                        </tr>
+                            <tr>
+                                <td><?= s($usuario->nombre . ' ' . $usuario->apellido) ?></td>
+                                <td><?= s($usuario->email) ?></td>
+                                <td><?= $usuario->admin ? 'Admin' : 'Cliente' ?></td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

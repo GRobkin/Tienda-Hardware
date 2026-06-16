@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: orden/mis-pedidos.php
  * Variables: $ordenes
@@ -10,9 +11,9 @@
     <header class="page-header">
         <h1 class="page-header__titulo">Mis pedidos</h1>
         <?php if (!empty($ordenes)): ?>
-        <p class="page-header__meta">
-            <?= count($ordenes) ?> pedido<?= count($ordenes) === 1 ? '' : 's' ?> realizados
-        </p>
+            <p class="page-header__meta">
+                <?= count($ordenes) ?> pedido<?= count($ordenes) === 1 ? '' : 's' ?> realizados
+            </p>
         <?php endif; ?>
     </header>
 
@@ -40,19 +41,19 @@
                 </thead>
                 <tbody>
                     <?php foreach ($ordenes as $orden): ?>
-                    <tr>
-                        <td><code class="admin__codigo"><?= s($orden->token) ?></code></td>
-                        <td><?= s($orden->creado_en ?? '—') ?></td>
-                        <td>
-                            <span class="estado estado--<?= s($orden->estado) ?>"><?= s($orden->estado) ?></span>
-                        </td>
-                        <td><strong><?= formatear_precio($orden->total) ?></strong></td>
-                        <td>
-                            <a class="seccion__link" href="/orden/confirmacion?token=<?= urlencode($orden->token) ?>">
-                                Ver detalle →
-                            </a>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td><code class="admin__codigo"><?= s($orden->token) ?></code></td>
+                            <td><?= s($orden->creado_en ?? '—') ?></td>
+                            <td>
+                                <span class="estado estado--<?= s($orden->estado) ?>"><?= s($orden->estado) ?></span>
+                            </td>
+                            <td><strong><?= formatear_precio($orden->total) ?></strong></td>
+                            <td>
+                                <a class="seccion__link" href="/orden/confirmacion?token=<?= urlencode($orden->token) ?>">
+                                    Ver detalle →
+                                </a>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>

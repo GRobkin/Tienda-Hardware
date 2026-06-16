@@ -6,7 +6,7 @@ $db = mysqli_connect(
     'tienda_hardware'
 );
 
-if(!$db) {
+if (!$db) {
     echo "Error: No se pudo conectar a MySQL. " . mysqli_connect_error();
     exit;
 }

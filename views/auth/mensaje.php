@@ -1,12 +1,14 @@
-<?php /** Vista: auth/mensaje.php */ ?>
+<?php
+
+/** Vista: auth/mensaje.php */ ?>
 
 <div class="auth">
     <div class="auth__card auth__card--mensaje">
 
         <div class="auth__icono-ok">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="9 12 11 14 15 10"/>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="9 12 11 14 15 10" />
             </svg>
         </div>
 

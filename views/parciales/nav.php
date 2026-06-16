@@ -32,10 +32,10 @@ if (empty($subcategorias_nav)) {
     <!-- Buscador -->
     <div class="nav__search">
         <input id="buscador-input"
-               type="search"
-               placeholder="Buscar productos..."
-               autocomplete="off"
-               aria-label="Buscar productos">
+            type="search"
+            placeholder="Buscar productos..."
+            autocomplete="off"
+            aria-label="Buscar productos">
         <button type="button" id="btnBuscar" class="nav__search-btn" aria-label="Buscar"><i class="nav__icon nav__icon--search"></i></button>
         <div id="buscador-resultados" class="buscador__resultados" hidden></div>
     </div>
@@ -46,18 +46,18 @@ if (empty($subcategorias_nav)) {
         <!-- Toggle dark mode: por defecto modo claro → muestra luna -->
         <button class="nav__btn" id="themeBtn" aria-label="Cambiar tema">
             <i class="nav__icon nav__icon--moon" id="iconMoon"></i>
-            <i class="nav__icon nav__icon--sun"  id="iconSun" hidden></i>
+            <i class="nav__icon nav__icon--sun" id="iconSun" hidden></i>
         </button>
 
         <?php if (!is_admin()): ?>
-        <!-- Carrito (los administradores no compran) -->
-        <a href="/carrito" class="nav__btn nav__cart" aria-label="Carrito">
-            <i class="nav__icon nav__icon--cart"></i>
-            <span class="nav__badge" id="contadorCarrito"
-                  <?= total_carrito() > 0 ? '' : 'hidden' ?>>
-                <?= total_carrito() ?>
-            </span>
-        </a>
+            <!-- Carrito (los administradores no compran) -->
+            <a href="/carrito" class="nav__btn nav__cart" aria-label="Carrito">
+                <i class="nav__icon nav__icon--cart"></i>
+                <span class="nav__badge" id="contadorCarrito"
+                    <?= total_carrito() > 0 ? '' : 'hidden' ?>>
+                    <?= total_carrito() ?>
+                </span>
+            </a>
         <?php endif; ?>
 
         <!-- Usuario / Entrar -->
@@ -96,7 +96,7 @@ if (empty($subcategorias_nav)) {
 
         <!-- Hamburguesa (solo móvil) -->
         <button class="nav__btn nav__hamburguesa" id="hamburguesaBtn"
-                aria-label="Abrir menú" aria-expanded="false" aria-controls="menuMovil">
+            aria-label="Abrir menú" aria-expanded="false" aria-controls="menuMovil">
             <i class="nav__icon nav__icon--menu"></i>
         </button>
 
@@ -135,12 +135,12 @@ if (empty($subcategorias_nav)) {
 <div class="catalogo-panel" id="catalogoPanel" hidden>
     <div class="catalogo-panel__cats" id="catalogoCats">
         <?php foreach ($categorias_nav as $cat): ?>
-        <div class="catalogo-panel__cat"
-             data-id="<?= (int)$cat->id ?>"
-             data-slug="<?= s($cat->slug) ?>">
-            <span><?= s($cat->nombre) ?></span>
-            <i class="nav__icon nav__icon--chevron-right"></i>
-        </div>
+            <div class="catalogo-panel__cat"
+                data-id="<?= (int)$cat->id ?>"
+                data-slug="<?= s($cat->slug) ?>">
+                <span><?= s($cat->nombre) ?></span>
+                <i class="nav__icon nav__icon--chevron-right"></i>
+            </div>
         <?php endforeach; ?>
     </div>
     <div class="catalogo-panel__subs" id="catalogoSubs">
@@ -152,18 +152,18 @@ if (empty($subcategorias_nav)) {
 
 <script>
     window.SUBCATEGORIAS = <?= json_encode(
-        array_map(fn($s) => [
-            'id'           => (int)$s->id,
-            'nombre'       => $s->nombre,
-            'slug'         => $s->slug,
-            'categoria_id' => (int)$s->categoria_id,
-        ], $subcategorias_nav)
-    ) ?>;
+                                array_map(fn($s) => [
+                                    'id'           => (int)$s->id,
+                                    'nombre'       => $s->nombre,
+                                    'slug'         => $s->slug,
+                                    'categoria_id' => (int)$s->categoria_id,
+                                ], $subcategorias_nav)
+                            ) ?>;
 
     window.CATEGORIAS = <?= json_encode(
-        array_map(fn($c) => [
-            'id'   => (int)$c->id,
-            'slug' => $c->slug,
-        ], $categorias_nav)
-    ) ?>;
+                            array_map(fn($c) => [
+                                'id'   => (int)$c->id,
+                                'slug' => $c->slug,
+                            ], $categorias_nav)
+                        ) ?>;
 </script>

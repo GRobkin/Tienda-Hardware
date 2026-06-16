@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Vista: tienda/subcategoria.php
  * Variables: $categoria, $subcategoria, $subcategorias, $productos, $total,
  *            $pagina_actual, $total_paginas, $marcas_disponibles, $filtros, $query_filtros
  */
 $url_base = '/categoria-producto/subcategoria?categoria=' . urlencode($categoria->slug)
-          . '&subcategoria=' . urlencode($subcategoria->slug);
+    . '&subcategoria=' . urlencode($subcategoria->slug);
 ?>
 
 <div class="contenedor">
@@ -27,15 +28,15 @@ $url_base = '/categoria-producto/subcategoria?categoria=' . urlencode($categoria
     </header>
 
     <?php if (!empty($subcategorias)): ?>
-    <div class="chips">
-        <a class="chip" href="/categoria-producto/categoria?categoria=<?= s($categoria->slug) ?>">Todo</a>
-        <?php foreach ($subcategorias as $sub): ?>
-        <a class="chip <?= $sub->id === $subcategoria->id ? 'chip--activo' : '' ?>"
-           href="/categoria-producto/subcategoria?categoria=<?= s($categoria->slug) ?>&subcategoria=<?= s($sub->slug) ?>">
-            <?= s($sub->nombre) ?>
-        </a>
-        <?php endforeach; ?>
-    </div>
+        <div class="chips">
+            <a class="chip" href="/categoria-producto/categoria?categoria=<?= s($categoria->slug) ?>">Todo</a>
+            <?php foreach ($subcategorias as $sub): ?>
+                <a class="chip <?= $sub->id === $subcategoria->id ? 'chip--activo' : '' ?>"
+                    href="/categoria-producto/subcategoria?categoria=<?= s($categoria->slug) ?>&subcategoria=<?= s($sub->slug) ?>">
+                    <?= s($sub->nombre) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
     <div class="listado-layout seccion">
@@ -65,15 +66,15 @@ $url_base = '/categoria-producto/subcategoria?categoria=' . urlencode($categoria
                 </div>
 
                 <?php if ($total_paginas > 1): ?>
-                <nav class="paginacion" aria-label="Paginación">
-                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                        <?php if ($i === $pagina_actual): ?>
-                            <span class="paginacion__enlace paginacion__enlace--actual" aria-current="page"><?= $i ?></span>
-                        <?php else: ?>
-                            <a class="paginacion__enlace" href="?<?= s($query_filtros) ?>&page=<?= $i ?>"><?= $i ?></a>
-                        <?php endif; ?>
-                    <?php endfor; ?>
-                </nav>
+                    <nav class="paginacion" aria-label="Paginación">
+                        <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                            <?php if ($i === $pagina_actual): ?>
+                                <span class="paginacion__enlace paginacion__enlace--actual" aria-current="page"><?= $i ?></span>
+                            <?php else: ?>
+                                <a class="paginacion__enlace" href="?<?= s($query_filtros) ?>&page=<?= $i ?>"><?= $i ?></a>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                    </nav>
                 <?php endif; ?>
             <?php endif; ?>
         </div>

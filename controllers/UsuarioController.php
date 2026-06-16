@@ -1,18 +1,27 @@
 <?php
+
 namespace Controllers;
 
 use Model\Usuario;
 use Model\Orden;
 use MVC\Router;
 
-class UsuarioController {
+class UsuarioController
+{
 
-    // ── Mi cuenta ──────────────────────────────────────────
-    public static function dashboard(Router $router) {
-        if(!is_auth()) { header('Location: /login'); exit; }
+    // Mi cuenta
+    public static function dashboard(Router $router)
+    {
+        if (!is_auth()) {
+            header('Location: /login');
+            exit;
+        }
 
         $usuario = Usuario::find($_SESSION['id']);
-        if(!$usuario) { header('Location: /login'); exit; }
+        if (!$usuario) {
+            header('Location: /login');
+            exit;
+        }
 
         $ordenes  = Orden::whereArray(['usuario_id' => $usuario->id]);
         $recientes = array_slice(array_reverse($ordenes), 0, 3);
@@ -25,17 +34,24 @@ class UsuarioController {
         ]);
     }
 
-    // ── Modificar perfil / contraseña ──────────────────────
-    public static function modificar(Router $router) {
-        if(!is_auth()) { header('Location: /login'); exit; }
+    // Modificar perfil / contraseña
+    public static function modificar(Router $router)
+    {
+        if (!is_auth()) {
+            header('Location: /login');
+            exit;
+        }
 
         $usuario = Usuario::find($_SESSION['id']);
-        if(!$usuario) { header('Location: /login'); exit; }
+        if (!$usuario) {
+            header('Location: /login');
+            exit;
+        }
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!csrf_check()) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!csrf_check()) {
                 Usuario::setAlerta('error', 'La sesión expiró, intentá de nuevo');
-            } elseif(($_POST['accion'] ?? '') === 'perfil') {
+            } elseif (($_POST['accion'] ?? '') === 'perfil') {
 
                 $usuario->nombre   = trim($_POST['nombre']   ?? '');
                 $usuario->apellido = trim($_POST['apellido'] ?? '');
@@ -43,9 +59,9 @@ class UsuarioController {
 
                 $alertas = $usuario->validarPerfil();
 
-                if(empty($alertas)) {
+                if (empty($alertas)) {
                     $existe = Usuario::where('email', $usuario->email);
-                    if($existe && $existe->id != $usuario->id) {
+                    if ($existe && $existe->id != $usuario->id) {
                         Usuario::setAlerta('error', 'Ese email ya está en uso por otra cuenta');
                     } else {
                         unset($usuario->password2);
@@ -61,15 +77,14 @@ class UsuarioController {
                         exit;
                     }
                 }
-
-            } elseif(($_POST['accion'] ?? '') === 'password') {
+            } elseif (($_POST['accion'] ?? '') === 'password') {
 
                 $usuario->password_actual = $_POST['password_actual'] ?? '';
                 $nueva                    = $_POST['password_nuevo']  ?? '';
 
-                if(!$usuario->comprobarPassword()) {
+                if (!$usuario->comprobarPassword()) {
                     Usuario::setAlerta('error', 'La contraseña actual es incorrecta');
-                } elseif(strlen($nueva) < 6) {
+                } elseif (strlen($nueva) < 6) {
                     Usuario::setAlerta('error', 'La nueva contraseña debe tener al menos 6 caracteres');
                 } else {
                     $usuario->password = password_hash($nueva, PASSWORD_BCRYPT);

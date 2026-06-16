@@ -1,4 +1,6 @@
-<?php /** Vista: paginas/sobre.php */ ?>
+<?php
+
+/** Vista: paginas/sobre.php */ ?>
 
 <div class="contenedor contenedor--angosto">
 

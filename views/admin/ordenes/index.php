@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: admin/ordenes/index.php
  * Variables: $ordenes, $pagina_actual, $total_paginas
@@ -32,21 +33,21 @@
                     </thead>
                     <tbody>
                         <?php foreach ($ordenes as $orden): ?>
-                        <tr>
-                            <td><code class="admin__codigo"><?= s($orden->token) ?></code></td>
-                            <td>
-                                <?= s($orden->usuario->nombre   ?? '—') ?>
-                                <?= s($orden->usuario->apellido ?? '') ?>
-                            </td>
-                            <td class="admin__fecha"><?= s($orden->numero_tarjeta ?: '—') ?></td>
-                            <td class="admin__monto"><?= formatear_precio($orden->total) ?></td>
-                            <td>
-                                <span class="admin__estado admin__estado--<?= s($orden->estado) ?>">
-                                    <?= ucfirst(s($orden->estado)) ?>
-                                </span>
-                            </td>
-                            <td class="admin__fecha"><?= s($orden->creado_en ?? '—') ?></td>
-                        </tr>
+                            <tr>
+                                <td><code class="admin__codigo"><?= s($orden->token) ?></code></td>
+                                <td>
+                                    <?= s($orden->usuario->nombre   ?? '—') ?>
+                                    <?= s($orden->usuario->apellido ?? '') ?>
+                                </td>
+                                <td class="admin__fecha"><?= s($orden->numero_tarjeta ?: '—') ?></td>
+                                <td class="admin__monto"><?= formatear_precio($orden->total) ?></td>
+                                <td>
+                                    <span class="admin__estado admin__estado--<?= s($orden->estado) ?>">
+                                        <?= ucfirst(s($orden->estado)) ?>
+                                    </span>
+                                </td>
+                                <td class="admin__fecha"><?= s($orden->creado_en ?? '—') ?></td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
