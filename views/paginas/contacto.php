@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: paginas/contacto.php
  * Variables: $alertas
@@ -24,32 +23,32 @@
                 <div class="campo">
                     <label class="campo__label" for="nombre">Nombre</label>
                     <input class="campo__input"
-                        id="nombre"
-                        name="nombre"
-                        type="text"
-                        placeholder="Tu nombre"
-                        autocomplete="name"
-                        required>
+                           id="nombre"
+                           name="nombre"
+                           type="text"
+                           placeholder="Tu nombre"
+                           autocomplete="name"
+                           required>
                 </div>
 
                 <div class="campo">
                     <label class="campo__label" for="email">Correo electrónico</label>
                     <input class="campo__input"
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="tu@correo.com"
-                        autocomplete="email"
-                        required>
+                           id="email"
+                           name="email"
+                           type="email"
+                           placeholder="tu@correo.com"
+                           autocomplete="email"
+                           required>
                 </div>
 
                 <div class="campo">
                     <label class="campo__label" for="mensaje">Mensaje</label>
                     <textarea class="campo__textarea"
-                        id="mensaje"
-                        name="mensaje"
-                        placeholder="Contanos en qué te podemos ayudar"
-                        required></textarea>
+                              id="mensaje"
+                              name="mensaje"
+                              placeholder="Contanos en qué te podemos ayudar"
+                              required></textarea>
                 </div>
 
                 <button type="submit" class="boton boton--primario boton--lg">

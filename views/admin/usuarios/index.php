@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: admin/usuarios/index.php
  * Variables: $usuarios
@@ -27,11 +26,11 @@
                     </thead>
                     <tbody>
                         <?php foreach ($usuarios as $usuario): ?>
-                            <tr>
-                                <td><?= s($usuario->nombre . ' ' . $usuario->apellido) ?></td>
-                                <td><?= s($usuario->email) ?></td>
-                                <td><?= $usuario->admin ? 'Admin' : 'Cliente' ?></td>
-                            </tr>
+                        <tr>
+                            <td><?= s($usuario->nombre . ' ' . $usuario->apellido) ?></td>
+                            <td><?= s($usuario->email) ?></td>
+                            <td><?= $usuario->admin ? 'Admin' : 'Cliente' ?></td>
+                        </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

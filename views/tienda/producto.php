@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: tienda/producto.php
  * Variables: $producto (con ->categoria y ->subcategoria), $relacionados
@@ -31,8 +30,8 @@ $stock = (int) $producto->stock;
 
         <div class="producto-detalle__media">
             <img src="<?= imagen_producto($producto) ?>"
-                alt="<?= s($producto->nombre) ?>"
-                onerror="this.onerror=null;this.src='/img/placeholder.svg'">
+                 alt="<?= s($producto->nombre) ?>"
+                 onerror="this.onerror=null;this.src='/img/placeholder.svg'">
         </div>
 
         <div class="producto-detalle__info">
@@ -63,19 +62,19 @@ $stock = (int) $producto->stock;
                     <div class="cantidad">
                         <button type="button" class="cantidad__btn cantidad__btn--menos" aria-label="Restar una unidad">−</button>
                         <input class="cantidad__input"
-                            id="productoCantidad"
-                            type="number"
-                            inputmode="numeric"
-                            min="1"
-                            max="<?= $stock ?>"
-                            value="1"
-                            aria-label="Cantidad">
+                               id="productoCantidad"
+                               type="number"
+                               inputmode="numeric"
+                               min="1"
+                               max="<?= $stock ?>"
+                               value="1"
+                               aria-label="Cantidad">
                         <button type="button" class="cantidad__btn cantidad__btn--mas" aria-label="Sumar una unidad">+</button>
                     </div>
                     <button type="button"
-                        class="boton boton--primario boton--lg agregar-carrito"
-                        data-id="<?= (int) $producto->id ?>"
-                        data-cantidad="#productoCantidad">
+                            class="boton boton--primario boton--lg agregar-carrito"
+                            data-id="<?= (int) $producto->id ?>"
+                            data-cantidad="#productoCantidad">
                         Agregar al carrito
                     </button>
                 <?php else: ?>
@@ -92,23 +91,23 @@ $stock = (int) $producto->stock;
     </div>
 
     <?php if (!empty($relacionados)): ?>
-        <section class="seccion">
-            <div class="seccion__header">
-                <h2 class="seccion__titulo">Productos relacionados</h2>
-            </div>
-            <div class="grid-productos">
-                <?php
-                foreach ($relacionados as $relacionado):
-                    // Las tarjetas relacionadas comparten subcategoría con el producto actual
-                    $relacionado->subcategoria = $producto->subcategoria;
-                    $original = $producto;
-                    $producto = $relacionado;
-                    include __DIR__ . '/../parciales/producto-card.php';
-                    $producto = $original;
-                endforeach;
-                ?>
-            </div>
-        </section>
+    <section class="seccion">
+        <div class="seccion__header">
+            <h2 class="seccion__titulo">Productos relacionados</h2>
+        </div>
+        <div class="grid-productos">
+            <?php
+            foreach ($relacionados as $relacionado):
+                // Las tarjetas relacionadas comparten subcategoría con el producto actual
+                $relacionado->subcategoria = $producto->subcategoria;
+                $original = $producto;
+                $producto = $relacionado;
+                include __DIR__ . '/../parciales/producto-card.php';
+                $producto = $original;
+            endforeach;
+            ?>
+        </div>
+    </section>
     <?php endif; ?>
 
 </div>

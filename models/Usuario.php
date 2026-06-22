@@ -1,11 +1,10 @@
 <?php
-
+// Modelo de usuarios: maneja validaciones de login, registro y cambio de contraseña
 namespace Model;
 
-class Usuario extends ActiveRecord
-{
+class Usuario extends ActiveRecord {
     protected static $tabla = 'usuarios';
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'password', 'admin'];
+    protected static $columnasDB = ['id','nombre','apellido','email','password','admin'];
 
     public $id;
     public $nombre;
@@ -17,8 +16,7 @@ class Usuario extends ActiveRecord
     public $password_nuevo;
     public $admin;
 
-    public function __construct($args = [])
-    {
+    public function __construct($args = []) {
         $this->id         = $args['id']         ?? null;
         $this->nombre     = $args['nombre']     ?? '';
         $this->apellido   = $args['apellido']   ?? '';
@@ -28,60 +26,55 @@ class Usuario extends ActiveRecord
         $this->admin      = $args['admin']      ?? 0;
     }
 
-    public function validarLogin()
-    {
-        if (!$this->email) {
+    public function validarLogin() {
+        if(!$this->email) {
             self::$alertas['error'][] = 'El email es obligatorio';
-        } elseif (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+        } elseif(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             self::$alertas['error'][] = 'Email no válido';
         }
-        if (!$this->password) self::$alertas['error'][] = 'La contraseña no puede estar vacía';
+        if(!$this->password) self::$alertas['error'][] = 'La contraseña no puede estar vacía';
         return self::$alertas;
     }
 
-    public function validarCuenta()
-    {
-        if (!$this->nombre)   self::$alertas['error'][] = 'El nombre es obligatorio';
-        if (!$this->apellido) self::$alertas['error'][] = 'El apellido es obligatorio';
-        if (!$this->email)    self::$alertas['error'][] = 'El email es obligatorio';
-        elseif (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
-        if (!$this->password) self::$alertas['error'][] = 'La contraseña no puede estar vacía';
-        elseif (strlen($this->password) < 6) self::$alertas['error'][] = 'La contraseña debe tener al menos 6 caracteres';
-        if ($this->password !== $this->password2) self::$alertas['error'][] = 'Las contraseñas no coinciden';
+    public function validarCuenta() {
+        if(!$this->nombre)   self::$alertas['error'][] = 'El nombre es obligatorio';
+        if(!$this->apellido) self::$alertas['error'][] = 'El apellido es obligatorio';
+        if(!$this->email)    self::$alertas['error'][] = 'El email es obligatorio';
+        elseif(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
+        if(!$this->password) self::$alertas['error'][] = 'La contraseña no puede estar vacía';
+        elseif(strlen($this->password) < 6) self::$alertas['error'][] = 'La contraseña debe tener al menos 6 caracteres';
+        if($this->password !== $this->password2) self::$alertas['error'][] = 'Las contraseñas no coinciden';
         return self::$alertas;
     }
 
-    public function validarEmail()
-    {
-        if (!$this->email) self::$alertas['error'][] = 'El email es obligatorio';
-        elseif (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
+    public function validarEmail() {
+        if(!$this->email) self::$alertas['error'][] = 'El email es obligatorio';
+        elseif(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
         return self::$alertas;
     }
 
-    public function validarPassword()
-    {
-        if (!$this->password) self::$alertas['error'][] = 'La contraseña no puede estar vacía';
-        elseif (strlen($this->password) < 6) self::$alertas['error'][] = 'La contraseña debe tener al menos 6 caracteres';
+    public function validarPassword() {
+        if(!$this->password) self::$alertas['error'][] = 'La contraseña no puede estar vacía';
+        elseif(strlen($this->password) < 6) self::$alertas['error'][] = 'La contraseña debe tener al menos 6 caracteres';
         return self::$alertas;
     }
 
-    public function comprobarPassword(): bool
-    {
+    // Compara la contraseña ingresada contra el hash guardado en la base
+    public function comprobarPassword() : bool {
         return password_verify($this->password_actual, $this->password);
     }
 
-    public function hashPassword(): void
-    {
+    // Reemplaza la contraseña en texto plano por su hash bcrypt
+    public function hashPassword() : void {
         $this->password = password_hash($this->password, PASSWORD_BCRYPT);
     }
 
     // Valida los datos editables del perfil (sin contraseña)
-    public function validarPerfil()
-    {
-        if (!$this->nombre)   self::$alertas['error'][] = 'El nombre es obligatorio';
-        if (!$this->apellido) self::$alertas['error'][] = 'El apellido es obligatorio';
-        if (!$this->email)    self::$alertas['error'][] = 'El email es obligatorio';
-        elseif (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
+    public function validarPerfil() {
+        if(!$this->nombre)   self::$alertas['error'][] = 'El nombre es obligatorio';
+        if(!$this->apellido) self::$alertas['error'][] = 'El apellido es obligatorio';
+        if(!$this->email)    self::$alertas['error'][] = 'El email es obligatorio';
+        elseif(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'Email no válido';
         return self::$alertas;
     }
 }

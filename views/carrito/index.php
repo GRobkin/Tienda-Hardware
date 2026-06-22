@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: carrito/index.php
  * Variables: $productos (con ->cantidad y ->subtotal), $total
@@ -11,9 +10,9 @@
     <header class="page-header">
         <h1 class="page-header__titulo">Mi carrito</h1>
         <?php if (!empty($productos)): ?>
-            <p class="page-header__meta">
-                <?= count($productos) ?> producto<?= count($productos) === 1 ? '' : 's' ?> en el carrito
-            </p>
+        <p class="page-header__meta">
+            <?= count($productos) ?> producto<?= count($productos) === 1 ? '' : 's' ?> en el carrito
+        </p>
         <?php endif; ?>
     </header>
 
@@ -43,40 +42,40 @@
                     </thead>
                     <tbody>
                         <?php foreach ($productos as $producto): ?>
-                            <tr>
-                                <td>
-                                    <a class="carrito__producto" href="/producto?id=<?= (int) $producto->id ?>">
-                                        <img src="<?= imagen_producto($producto) ?>"
-                                            alt="<?= s($producto->nombre) ?>"
-                                            onerror="this.onerror=null;this.src='/img/placeholder.svg'">
-                                        <span><?= s($producto->nombre) ?></span>
-                                    </a>
-                                </td>
-                                <td><?= formatear_precio($producto->precio) ?></td>
-                                <td>
-                                    <div class="cantidad cantidad--sm" data-id="<?= (int) $producto->id ?>">
-                                        <button type="button" class="cantidad__btn cantidad__btn--menos" aria-label="Restar una unidad">−</button>
-                                        <input class="cantidad__input"
-                                            type="number"
-                                            inputmode="numeric"
-                                            min="0"
-                                            max="<?= (int) $producto->stock ?>"
-                                            value="<?= (int) $producto->cantidad ?>"
-                                            aria-label="Cantidad de <?= s($producto->nombre) ?>"
-                                            readonly>
-                                        <button type="button" class="cantidad__btn cantidad__btn--mas" aria-label="Sumar una unidad">+</button>
-                                    </div>
-                                </td>
-                                <td class="carrito__subtotal"><?= formatear_precio($producto->subtotal) ?></td>
-                                <td>
-                                    <button type="button"
+                        <tr>
+                            <td>
+                                <a class="carrito__producto" href="/producto?id=<?= (int) $producto->id ?>">
+                                    <img src="<?= imagen_producto($producto) ?>"
+                                         alt="<?= s($producto->nombre) ?>"
+                                         onerror="this.onerror=null;this.src='/img/placeholder.svg'">
+                                    <span><?= s($producto->nombre) ?></span>
+                                </a>
+                            </td>
+                            <td><?= formatear_precio($producto->precio) ?></td>
+                            <td>
+                                <div class="cantidad cantidad--sm" data-id="<?= (int) $producto->id ?>">
+                                    <button type="button" class="cantidad__btn cantidad__btn--menos" aria-label="Restar una unidad">−</button>
+                                    <input class="cantidad__input"
+                                           type="number"
+                                           inputmode="numeric"
+                                           min="0"
+                                           max="<?= (int) $producto->stock ?>"
+                                           value="<?= (int) $producto->cantidad ?>"
+                                           aria-label="Cantidad de <?= s($producto->nombre) ?>"
+                                           readonly>
+                                    <button type="button" class="cantidad__btn cantidad__btn--mas" aria-label="Sumar una unidad">+</button>
+                                </div>
+                            </td>
+                            <td class="carrito__subtotal"><?= formatear_precio($producto->subtotal) ?></td>
+                            <td>
+                                <button type="button"
                                         class="carrito__btn-eliminar"
                                         data-id="<?= (int) $producto->id ?>"
                                         aria-label="Eliminar <?= s($producto->nombre) ?> del carrito">
-                                        ✕
-                                    </button>
-                                </td>
-                            </tr>
+                                    ✕
+                                </button>
+                            </td>
+                        </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

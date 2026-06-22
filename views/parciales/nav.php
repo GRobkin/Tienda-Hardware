@@ -26,7 +26,7 @@ if (empty($subcategorias_nav)) {
     <!-- Botón catálogo -->
     <button class="nav__cat-btn" id="catBtn" aria-expanded="false" aria-controls="catalogoPanel">
         <i class="nav__icon nav__icon--menu"></i>
-        CATÁLOGO
+        <span>CATÁLOGO</span>
     </button>
 
     <!-- Buscador -->
@@ -105,11 +105,8 @@ if (empty($subcategorias_nav)) {
 
 <!-- Menú móvil -->
 <div class="menu-movil" id="menuMovil" hidden>
-    <a href="/" class="menu-movil__item">Inicio</a>
-    <a href="/sobre" class="menu-movil__item">Sobre nosotros</a>
-    <a href="/contacto" class="menu-movil__item">Contacto</a>
-    <a href="/garantia" class="menu-movil__item">Garantías</a>
-    <hr class="nav__dropdown-sep">
+
+    <!-- 1. Cuenta / login -->
     <?php if (is_auth()): ?>
         <a href="/cuenta" class="menu-movil__item">Mi cuenta</a>
         <?php if (is_admin()): ?>
@@ -126,6 +123,37 @@ if (empty($subcategorias_nav)) {
         <a href="/login" class="menu-movil__item">Iniciar sesión</a>
         <a href="/registro" class="menu-movil__item">Crear cuenta</a>
     <?php endif; ?>
+
+    <!-- 2. Catálogo expandible -->
+    <?php if (!empty($categorias_nav)): ?>
+    <div class="menu-movil__catalogo">
+        <?php foreach ($categorias_nav as $cat):
+            $subs = array_filter($subcategorias_nav, fn($s) => $s->categoria_id == $cat->id);
+        ?>
+        <div class="menu-movil__cat">
+            <button class="menu-movil__cat-btn" aria-expanded="false">
+                <span><?= s($cat->nombre) ?></span>
+                <i class="nav__icon nav__icon--chevron menu-movil__cat-chevron"></i>
+            </button>
+            <?php if (!empty($subs)): ?>
+            <div class="menu-movil__subs" hidden>
+                <a href="/categoria-producto/categoria?categoria=<?= s($cat->slug) ?>"
+                   class="menu-movil__sub menu-movil__sub--todo">
+                    Ver todo en <?= s($cat->nombre) ?>
+                </a>
+                <?php foreach ($subs as $sub): ?>
+                <a href="/categoria-producto/subcategoria?categoria=<?= s($cat->slug) ?>&subcategoria=<?= s($sub->slug) ?>"
+                   class="menu-movil__sub">
+                    <?= s($sub->nombre) ?>
+                </a>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
 </div>
 
 <!-- Overlay -->
@@ -151,6 +179,7 @@ if (empty($subcategorias_nav)) {
 </div>
 
 <script>
+    // Expone categorías y subcategorías al JS del panel de catálogo para construir el menú sin peticiones AJAX
     window.SUBCATEGORIAS = <?= json_encode(
                                 array_map(fn($s) => [
                                     'id'           => (int)$s->id,

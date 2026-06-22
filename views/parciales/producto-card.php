@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Parcial: parciales/producto-card.php
  * Variables: $producto — opcionalmente con ->categoria / ->subcategoria cargadas.
@@ -11,9 +10,9 @@ $sin_stock = (int) $producto->stock < 1;
 <article class="producto-card">
     <a href="/producto?id=<?= (int) $producto->id ?>" class="producto-card__media" tabindex="-1">
         <img src="<?= imagen_producto($producto) ?>"
-            alt="<?= s($producto->nombre) ?>"
-            loading="lazy"
-            onerror="this.onerror=null;this.src='/img/placeholder.svg'">
+             alt="<?= s($producto->nombre) ?>"
+             loading="lazy"
+             onerror="this.onerror=null;this.src='/img/placeholder.svg'">
     </a>
     <div class="producto-card__body">
         <?php if ($overline): ?>
@@ -30,8 +29,8 @@ $sin_stock = (int) $producto->stock < 1;
             <span class="producto-card__agotado">Sin stock</span>
         <?php elseif (!is_admin()): ?>
             <button type="button"
-                class="boton boton--primario boton--sm agregar-carrito"
-                data-id="<?= (int) $producto->id ?>">
+                    class="boton boton--primario boton--sm agregar-carrito"
+                    data-id="<?= (int) $producto->id ?>">
                 Agregar al carrito
             </button>
         <?php endif; ?>

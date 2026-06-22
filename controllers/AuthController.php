@@ -1,33 +1,32 @@
 <?php
-
+// Controlador de autenticación: login, logout y registro de usuarios
 namespace Controllers;
 
 use Model\Usuario;
 use MVC\Router;
 
-class AuthController
-{
+class AuthController {
 
     // Login
-    public static function login(Router $router)
-    {
+    public static function login(Router $router) {
         $alertas = [];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!csrf_check()) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if(!csrf_check()) {
                 Usuario::setAlerta('error', 'La sesión expiró, intentá de nuevo');
             } else {
                 $usuario = new Usuario($_POST);
                 $alertas = $usuario->validarLogin();
 
-                if (empty($alertas)) {
+                if(empty($alertas)) {
                     $usuario = Usuario::where('email', $usuario->email);
 
-                    if (!$usuario) {
+                    if(!$usuario) {
                         Usuario::setAlerta('error', 'El usuario no existe');
-                    } elseif (!password_verify($_POST['password'], $usuario->password)) {
+                    } elseif(!password_verify($_POST['password'], $usuario->password)) {
                         Usuario::setAlerta('error', 'Contraseña incorrecta');
                     } else {
+                        // Regenerar el ID de sesión previene que un atacante reutilice una sesión antigua
                         session_regenerate_id(true);
                         $_SESSION['id']       = $usuario->id;
                         $_SESSION['nombre']   = $usuario->nombre;
@@ -50,9 +49,8 @@ class AuthController
     }
 
     // Logout
-    public static function logout()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
+    public static function logout() {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
             $_SESSION = [];
             session_destroy();
         }
@@ -61,29 +59,28 @@ class AuthController
     }
 
     // Registro
-    public static function registro(Router $router)
-    {
+    public static function registro(Router $router) {
         $usuario = new Usuario;
         $alertas = [];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!csrf_check()) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if(!csrf_check()) {
                 Usuario::setAlerta('error', 'La sesión expiró, intentá de nuevo');
             } else {
                 $usuario->sincronizar($_POST);
                 $alertas = $usuario->validarCuenta();
 
-                if (empty($alertas)) {
+                if(empty($alertas)) {
                     $existe = Usuario::where('email', $usuario->email);
 
-                    if ($existe) {
+                    if($existe) {
                         Usuario::setAlerta('error', 'Ese email ya está registrado');
                     } else {
                         $usuario->hashPassword();
                         unset($usuario->password2);
 
                         $resultado = $usuario->guardar();
-                        if ($resultado['resultado']) {
+                        if($resultado['resultado']) {
                             header('Location: /mensaje');
                             exit;
                         }
@@ -101,8 +98,7 @@ class AuthController
     }
 
     // Mensaje post-registro
-    public static function mensaje(Router $router)
-    {
+    public static function mensaje(Router $router) {
         $router->render('auth/mensaje', [
             'titulo' => 'Cuenta creada'
         ]);

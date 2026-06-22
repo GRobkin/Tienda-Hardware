@@ -1,4 +1,6 @@
-/* Variables */
+/* =====================================================
+   VARIABLES — colores, alturas y sombras globales
+   ===================================================== */
 :root {
     --c50: #e8f0ff;
     --c100: #d4e2ff;
@@ -32,7 +34,9 @@
     --shadow: 0 4px 24px rgba(0, 0, 0, .4);
 }
 
-/* Reset base */
+/* =====================================================
+   RESET BASE — elimina márgenes y paddings por defecto
+   ===================================================== */
 *,
 *::before,
 *::after {
@@ -53,10 +57,9 @@ body {
     min-height: 100vh;
 }
 
-/* Nunca permitir desborde horizontal (clip no rompe position: sticky) */
 html,
 body {
-    overflow-x: clip;
+    overflow-x: clip; /* evita scroll horizontal */
 }
 
 a {
@@ -87,7 +90,10 @@ legend {
     padding: 0;
 }
 
-/* Iconos inline SVG */
+/* =====================================================
+   ICONOS SVG — íconos de la barra de navegación
+   Usan CSS mask para poder cambiar el color con currentColor
+   ===================================================== */
 .nav__icon {
     display: inline-block;
     width: 20px;
@@ -99,6 +105,11 @@ legend {
 .nav__icon--menu {
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cline x1='3' y1='6' x2='21' y2='6'/%3E%3Cline x1='3' y1='12' x2='21' y2='12'/%3E%3Cline x1='3' y1='18' x2='21' y2='18'/%3E%3C/svg%3E") center/contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cline x1='3' y1='6' x2='21' y2='6'/%3E%3Cline x1='3' y1='12' x2='21' y2='12'/%3E%3Cline x1='3' y1='18' x2='21' y2='18'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.nav__icon--close {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .nav__icon--search {
@@ -145,7 +156,9 @@ legend {
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
-/* Nav principal */
+/* =====================================================
+   NAVBAR — barra de navegación superior (sticky)
+   ===================================================== */
 .nav {
     position: sticky;
     top: 0;
@@ -153,14 +166,12 @@ legend {
     background: var(--c950);
     height: var(--nav-h);
     display: grid;
-    /* minmax(0,1fr): el buscador puede achicarse sin desbordar (Safari) */
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto; /* minmax(0,1fr) evita desborde del buscador en Safari */
     align-items: center;
     gap: 12px;
     padding: 0 20px;
 }
 
-/* El logo no debe desbordar la barra (90px de alto) */
 .nav__logo img {
     height: 64px;
 }
@@ -196,8 +207,7 @@ legend {
 
 .nav__search input {
     width: 100%;
-    min-width: 0;
-    /* anula el ancho mínimo intrínseco del input (Safari) */
+    min-width: 0; /* fix Safari: evita que el input desborde */
     height: 44px;
     border-radius: 22px;
     border: none;
@@ -451,7 +461,9 @@ legend {
     }
 }
 
-/* Slider */
+/* =====================================================
+   SLIDER — banner de imágenes en el inicio
+   ===================================================== */
 .slider {
     position: relative;
     overflow: hidden;
@@ -548,7 +560,9 @@ legend {
     transform: scale(1.3);
 }
 
-/* Panel catálogo */
+/* =====================================================
+   PANEL CATÁLOGO — panel lateral de categorías y subcategorías
+   ===================================================== */
 .catalogo-panel {
     position: fixed;
     top: var(--nav-h);
@@ -656,7 +670,9 @@ legend {
     color: var(--c200);
 }
 
-/* Nav auth */
+/* =====================================================
+   NAV AUTH — barra de navegación para páginas de login/registro
+   ===================================================== */
 .nav-auth {
     background: var(--c950);
     height: var(--nav-h);
@@ -669,7 +685,9 @@ legend {
     height: 64px;
 }
 
-/* Footer */
+/* =====================================================
+   FOOTER — pie de página con links y copyright
+   ===================================================== */
 .footer {
     background: var(--c950);
     color: rgba(255, 255, 255, .8);
@@ -719,7 +737,6 @@ legend {
 .footer__lista a {
     display: inline-block;
     padding: 5px 0;
-    /* objetivo de clic más alto sin cambiar el diseño */
     font-size: 13px;
     color: rgba(255, 255, 255, .6);
     transition: color .15s;
@@ -737,7 +754,9 @@ legend {
     text-align: center;
 }
 
-/* Auth */
+/* =====================================================
+   AUTH — formularios de login y registro
+   ===================================================== */
 .auth {
     min-height: calc(100vh - var(--nav-h));
     display: flex;
@@ -894,7 +913,9 @@ legend {
     background: var(--c50);
 }
 
-/* Alertas */
+/* =====================================================
+   ALERTAS — mensajes de éxito, error y aviso
+   ===================================================== */
 .alerta {
     padding: 10px 14px;
     border-radius: 8px;
@@ -939,7 +960,7 @@ legend {
     color: #f6ad55;
 }
 
-/* Responsivo */
+/* Tablet y celular (≤768px): footer en columna, catálogo ancho completo */
 @media (max-width: 768px) {
     .nav__search {
         max-width: none;
@@ -960,21 +981,14 @@ legend {
 }
 
 @media (max-width: 480px) {
-    .nav {
-        padding: 0 12px;
-        gap: 8px;
-    }
-
-    .nav__cat-btn span {
-        display: none;
-    }
-
     .catalogo-panel__subs-grid {
         grid-template-columns: 1fr;
     }
 }
 
-/* Footer auth */
+/* =====================================================
+   FOOTER AUTH — pie de página para páginas de login/registro
+   ===================================================== */
 .footer-auth {
     background: var(--c950);
     color: rgba(255, 255, 255, .7);
@@ -1029,7 +1043,9 @@ legend {
     width: 100%;
 }
 
-/* Admin tabs (subnav) */
+/* =====================================================
+   ADMIN TABS — submenú de navegación del panel admin
+   ===================================================== */
 .admin-tabs {
     background: var(--bg-card);
     border-bottom: 1px solid var(--border);
@@ -1089,7 +1105,9 @@ legend {
     border-bottom-color: var(--c400);
 }
 
-/* Admin contenido */
+/* =====================================================
+   ADMIN CONTENIDO — dashboard con cards de métricas y tablas
+   ===================================================== */
 .main--admin {
     max-width: 1200px;
     margin: 0 auto;
@@ -1166,7 +1184,7 @@ legend {
     color: #fff;
 }
 
-/* Acciones rápidas */
+/* Acciones rápidas del dashboard */
 .admin__acciones {
     display: flex;
     gap: 10px;
@@ -1189,7 +1207,7 @@ legend {
     background: var(--c600);
 }
 
-/* Sección con tabla */
+/* Tablas del admin (productos, órdenes, usuarios) */
 .admin__seccion {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -1324,6 +1342,7 @@ legend {
     font-size: 14px;
 }
 
+/* Celular (≤768px): tarjetas del dashboard en columna */
 @media (max-width: 768px) {
     .admin__cards {
         grid-template-columns: 1fr;
@@ -1334,14 +1353,18 @@ legend {
     }
 }
 
-/* Tokens semánticos (sistema de diseño) */
+/* =====================================================
+   TOKENS SEMÁNTICOS — colores de estado (peligro, éxito, aviso)
+   ===================================================== */
 :root {
     --danger: #e53e3e;
     --exito: #38a169;
     --aviso: #ed8936;
 }
 
-/* Accesibilidad */
+/* =====================================================
+   ACCESIBILIDAD — skip link y outline de teclado
+   ===================================================== */
 .skip-link {
     position: absolute;
     left: -9999px;
@@ -1368,7 +1391,9 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
-/* Layout base de tienda */
+/* =====================================================
+   LAYOUT TIENDA — contenedor, secciones y estructura general
+   ===================================================== */
 .contenedor {
     max-width: 1200px;
     margin: 0 auto;
@@ -1430,7 +1455,7 @@ textarea:focus-visible {
     margin-top: 4px;
 }
 
-/* Breadcrumb */
+/* ===== Breadcrumb — ruta de navegación (Inicio > Categoría > Producto) ===== */
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -1459,7 +1484,9 @@ textarea:focus-visible {
     font-weight: 600;
 }
 
-/* Botones */
+/* =====================================================
+   BOTONES — estilos reutilizables (primario, secundario, peligro)
+   ===================================================== */
 .boton {
     display: inline-flex;
     align-items: center;
@@ -1540,7 +1567,9 @@ textarea:focus-visible {
     width: 100%;
 }
 
-/* Grid de productos + tarjeta */
+/* =====================================================
+   GRID DE PRODUCTOS — grilla responsive y tarjeta de producto
+   ===================================================== */
 .grid-productos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -1639,7 +1668,7 @@ textarea:focus-visible {
     font-weight: 600;
 }
 
-/* Tiles de categorías (home) */
+/* ===== Tiles de categorías — tarjetas del home con imagen y nombre ===== */
 .grid-categorias {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -1682,7 +1711,7 @@ textarea:focus-visible {
     color: var(--c500);
 }
 
-/* Chips de subcategorías (páginas de listado) */
+/* ===== Chips de subcategorías — filtros de subcategoría en listados ===== */
 .chips {
     display: flex;
     flex-wrap: wrap;
@@ -1718,7 +1747,7 @@ textarea:focus-visible {
     color: #fff;
 }
 
-/* Página de producto */
+/* ===== Página de producto — detalle con imagen, precio y descripción ===== */
 .producto-detalle {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
@@ -1792,7 +1821,7 @@ textarea:focus-visible {
     margin-bottom: 6px;
 }
 
-/* Badge de stock */
+/* ===== Badge de stock — indicador de disponibilidad del producto ===== */
 .stock {
     display: inline-flex;
     align-items: center;
@@ -1827,7 +1856,7 @@ textarea:focus-visible {
     color: var(--danger);
 }
 
-/* Stepper de cantidad */
+/* ===== Stepper de cantidad — control +/- para elegir cuántos unidades agregar ===== */
 .cantidad {
     display: inline-flex;
     align-items: center;
@@ -1885,7 +1914,7 @@ textarea:focus-visible {
     font-size: 13px;
 }
 
-/* Tabla genérica (carrito, pedidos, admin) */
+/* ===== Tabla genérica — usada en carrito, pedidos y admin ===== */
 .tabla-wrap {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -1927,7 +1956,7 @@ textarea:focus-visible {
     background: var(--bg);
 }
 
-/* Estado (badges genéricos, mismos colores que admin) */
+/* ===== Badges de estado — pendiente, completado, cancelado, etc. ===== */
 .estado {
     display: inline-block;
     padding: 3px 10px;
@@ -1965,7 +1994,7 @@ textarea:focus-visible {
     color: #fc8181;
 }
 
-/* Paginación (clases emitidas por classes/Paginacion.php) */
+/* ===== Paginación — controles de página siguiente/anterior ===== */
 .paginacion {
     display: flex;
     align-items: center;
@@ -1979,7 +2008,6 @@ textarea:focus-visible {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* Ley de Fitts: objetivo cómodo de clic */
     min-width: 40px;
     height: 40px;
     padding: 0 10px;
@@ -2007,7 +2035,7 @@ textarea:focus-visible {
     padding: 0 14px;
 }
 
-/* Estado vacío */
+/* ===== Estado vacío — mensaje cuando no hay resultados ===== */
 .vacio {
     text-align: center;
     padding: 56px 24px;
@@ -2041,7 +2069,7 @@ textarea:focus-visible {
     margin-top: 8px;
 }
 
-/* Formularios genéricos (fuera de auth) */
+/* ===== Formularios genéricos — campos reutilizables en toda la tienda ===== */
 .campo {
     display: flex;
     flex-direction: column;
@@ -2102,7 +2130,7 @@ textarea:focus-visible {
     color: var(--text-muted);
 }
 
-/* Buscador — info secundaria */
+/* Buscador — datos secundarios del resultado (categoría) */
 .buscador__item-info {
     flex: 1;
     display: flex;
@@ -2116,7 +2144,7 @@ textarea:focus-visible {
     color: var(--text-muted);
 }
 
-/* Auth — clases usadas en vistas y faltantes en CSS */
+/* Estilos extra de auth */
 .auth__subtitulo {
     font-size: 13px;
     color: var(--text-muted);
@@ -2125,7 +2153,11 @@ textarea:focus-visible {
     line-height: 1.5;
 }
 
-/* Responsivo — tienda */
+/* =====================================================
+   RESPONSIVE TIENDA
+   ===================================================== */
+
+/* Tablet (≤900px): detalle de producto en una columna */
 @media (max-width: 900px) {
     .producto-detalle {
         grid-template-columns: 1fr;
@@ -2133,6 +2165,7 @@ textarea:focus-visible {
     }
 }
 
+/* Celular (≤768px): textos más chicos, márgenes reducidos */
 @media (max-width: 768px) {
     .seccion {
         margin: 32px auto;
@@ -2155,6 +2188,7 @@ textarea:focus-visible {
     }
 }
 
+/* Celular chico (≤480px): grid de 2 columnas, padding reducido */
 @media (max-width: 480px) {
     .contenedor {
         padding: 0 14px;
@@ -2174,6 +2208,7 @@ textarea:focus-visible {
     }
 }
 
+/* Celular muy chico (≤360px): una sola columna */
 @media (max-width: 360px) {
     .grid-productos {
         grid-template-columns: 1fr;
@@ -2181,7 +2216,9 @@ textarea:focus-visible {
 }
 
 
-/* Utilidades */
+/* =====================================================
+   UTILIDADES — clases de uso general
+   ===================================================== */
 .contenedor--angosto {
     max-width: 860px;
 }
@@ -2198,7 +2235,9 @@ textarea:focus-visible {
     border: 0;
 }
 
-/* Carrito */
+/* =====================================================
+   CARRITO — página del carrito de compras
+   ===================================================== */
 .carrito-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 320px;
@@ -2239,7 +2278,6 @@ textarea:focus-visible {
 }
 
 .carrito__btn-eliminar {
-    /* Ley de Fitts: objetivo táctil de al menos 40px */
     width: 40px;
     height: 40px;
     border: none;
@@ -2255,7 +2293,7 @@ textarea:focus-visible {
     color: var(--danger);
 }
 
-/* Resumen (carrito + checkout) */
+/* ===== Resumen de compra — totales y detalles en carrito y checkout ===== */
 .resumen {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -2336,7 +2374,7 @@ textarea:focus-visible {
     white-space: nowrap;
 }
 
-/* Checkout */
+/* ===== Checkout — formulario de pago y datos de envío ===== */
 .checkout-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
@@ -2360,7 +2398,7 @@ textarea:focus-visible {
     gap: 16px;
 }
 
-/* Confirmación de compra */
+/* ===== Confirmación de compra — pantalla de éxito después del pago ===== */
 .confirmacion {
     max-width: 760px;
     margin-left: auto;
@@ -2431,7 +2469,7 @@ textarea:focus-visible {
     flex-wrap: wrap;
 }
 
-/* Contacto */
+/* ===== Contacto — página de formulario de contacto ===== */
 .contacto-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
@@ -2478,7 +2516,7 @@ textarea:focus-visible {
     line-height: 1.5;
 }
 
-/* Prosa (sobre, garantía) */
+/* ===== Prosa — páginas de texto largo (sobre nosotros, garantía) ===== */
 .prosa {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -2528,7 +2566,7 @@ textarea:focus-visible {
     list-style: decimal;
 }
 
-/* 404 */
+/* ===== Página 404 — pantalla de error "no encontrado" ===== */
 .error404 {
     text-align: center;
     padding: 64px 24px;
@@ -2559,7 +2597,7 @@ textarea:focus-visible {
     line-height: 1.6;
 }
 
-/* Responsivo — carrito / checkout / contacto */
+/* Tablet (≤900px): carrito, checkout y contacto en una columna */
 @media (max-width: 900px) {
 
     .carrito-layout,
@@ -2574,7 +2612,9 @@ textarea:focus-visible {
 }
 
 
-/* Mi cuenta */
+/* =====================================================
+   MI CUENTA — página de datos del usuario y sus órdenes
+   ===================================================== */
 .cuenta-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2638,13 +2678,16 @@ textarea:focus-visible {
     padding-bottom: 0;
 }
 
+/* Celular (≤768px): grilla de cuenta en columna */
 @media (max-width: 768px) {
     .cuenta-grid {
         grid-template-columns: 1fr;
     }
 }
 
-/* Admin — formularios y tabla */
+/* =====================================================
+   ADMIN — formularios, tabla y acciones CRUD
+   ===================================================== */
 .admin__seccion--form {
     margin-bottom: 24px;
 }
@@ -2762,7 +2805,6 @@ a.admin__producto:hover {
 .admin__acciones-fila {
     display: flex;
     align-items: center;
-    /* Separación extra entre Editar y Eliminar (evita clics destructivos por error) */
     gap: 12px;
     flex-wrap: wrap;
 }
@@ -2776,10 +2818,14 @@ a.admin__producto:hover {
         grid-template-columns: 1fr;
         align-items: stretch;
     }
+
+    .admin-form__fila {
+        grid-template-columns: 1fr;
+    }
 }
 
 
-/* Listados con filtros (sidebar izquierda) */
+/* ===== Listados con filtros — página de categoría con sidebar de filtros ===== */
 .listado-layout {
     display: grid;
     grid-template-columns: 230px minmax(0, 1fr);
@@ -2879,12 +2925,14 @@ a.admin__producto:hover {
     text-transform: none;
 }
 
-/* Menú hamburguesa (móvil) */
+/* =====================================================
+   MENÚ HAMBURGUESA — menú desplegable para celular
+   ===================================================== */
 .nav__hamburguesa {
     display: none;
 }
 
-/* [hidden] debe ganar aunque .menu-movil defina display propio */
+/* [hidden] tiene mayor especificidad para ocultar el menú */
 .menu-movil[hidden] {
     display: none;
 }
@@ -2896,13 +2944,139 @@ a.admin__producto:hover {
     right: 0;
     z-index: 110;
     background: var(--bg-card);
+    border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow);
-    padding: 8px 0;
     display: flex;
     flex-direction: column;
+    max-height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    animation: menuSlideDown .2s ease;
 }
 
+@keyframes menuSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Buscador dentro del menú móvil */
+.menu-movil__search {
+    position: relative;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.menu-movil__search input {
+    width: 100%;
+    height: 42px;
+    border-radius: 21px;
+    border: 1px solid var(--border);
+    padding: 0 42px 0 16px;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+}
+
+.menu-movil__search input:focus {
+    border-color: var(--c400);
+}
+
+.menu-movil__search-icon {
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.menu-movil__search .buscador__resultados {
+    left: 16px;
+    right: 16px;
+    top: calc(100% - 14px);
+}
+
+/* Catálogo acordeón */
+.menu-movil__catalogo {
+    border-top: 1px solid var(--border);
+    padding: 4px 0;
+}
+
+.menu-movil__cat-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    text-align: left;
+    transition: background .12s, color .12s;
+}
+
+.menu-movil__cat-btn:hover {
+    background: var(--bg);
+    color: var(--c500);
+}
+
+.menu-movil__cat-chevron {
+    width: 16px;
+    height: 16px;
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+
+.menu-movil__cat-btn[aria-expanded="true"] .menu-movil__cat-chevron {
+    transform: rotate(90deg);
+}
+
+.menu-movil__subs[hidden] { display: none; }
+
+.menu-movil__subs {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    margin: 0 12px 8px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.menu-movil__sub {
+    display: block;
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    transition: color .12s, background .12s;
+}
+
+.menu-movil__sub:last-child {
+    border-bottom: none;
+}
+
+.menu-movil__sub:hover {
+    color: var(--c500);
+    background: var(--bg-card);
+}
+
+.menu-movil__sub--todo {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+
+
+/* Items normales */
 .menu-movil__item {
     display: block;
     width: 100%;
@@ -2925,53 +3099,46 @@ a.admin__producto:hover {
     color: var(--danger);
 }
 
+/* Celular (≤768px): navbar en una fila (logo | buscador | acciones) */
 @media (max-width: 768px) {
 
-    /* Nav móvil en dos filas: logo + acciones arriba, catálogo + buscador abajo */
     :root {
-        --nav-h: 108px;
+        --nav-h: 64px;
     }
 
     .nav {
         height: var(--nav-h);
         grid-template-columns: auto minmax(0, 1fr) auto;
-        grid-template-areas:
-            "logo   logo   actions"
-            "cat    search search";
-        gap: 8px 10px;
-        padding: 8px 12px;
-        align-content: center;
+        grid-template-areas: "logo srch actions";
+        gap: 0 8px;
+        padding: 0 12px;
     }
 
-    .nav__logo {
-        grid-area: logo;
-    }
+    .nav__logo { grid-area: logo; }
 
     .nav__logo img {
-        height: 42px;
-        max-width: none;
+        height: 40px;
     }
 
     .nav__actions {
         grid-area: actions;
         justify-self: end;
-        gap: 6px;
+        gap: 4px;
     }
 
     .nav__cat-btn {
-        grid-area: cat;
-        height: 40px;
+        display: none;
     }
 
     .nav__search {
-        grid-area: search;
+        grid-area: srch;
         max-width: none;
         padding: 0;
         justify-self: stretch;
     }
 
     .nav__search input {
-        height: 40px;
+        height: 38px;
     }
 
     .nav__search-btn {
@@ -3040,7 +3207,9 @@ a.admin__producto:hover {
     filter: none;
 }
 
-/* Admin — orden manual (filas dinámicas) */
+/* =====================================================
+   ADMIN ORDEN — filas dinámicas para cargar ítems de una orden
+   ===================================================== */
 .orden-items {
     display: flex;
     flex-direction: column;
@@ -3064,13 +3233,16 @@ a.admin__producto:hover {
     justify-content: center;
 }
 
+/* Celular (≤600px): grilla de ítems más estrecha */
 @media (max-width: 600px) {
     .orden-items__fila {
         grid-template-columns: 1fr 70px 34px;
     }
 }
 
-/* SweetAlert2 — tema de la tienda */
+/* =====================================================
+   SWEETALERT2 — tema visual para los diálogos de confirmación
+   ===================================================== */
 .swal2-popup {
     background: var(--bg-card) !important;
     color: var(--text) !important;

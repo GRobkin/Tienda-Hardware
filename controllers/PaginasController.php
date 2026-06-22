@@ -1,5 +1,5 @@
 <?php
-
+// Controlador de páginas públicas: home, categoría, subcategoría, detalle de producto, contacto y 404
 namespace Controllers;
 
 use Model\Producto;
@@ -7,35 +7,34 @@ use Model\Categoria;
 use Model\Subcategoria;
 use MVC\Router;
 
-class PaginasController
-{
+class PaginasController {
 
-    // Lee los filtros de marca y precio desde $_GET
-    private static function leerFiltros(): array
-    {
+    // Lee los filtros de marca, precio y orden desde $_GET
+    private static function leerFiltros() : array {
         $marcas = array_filter(array_map('trim', (array) ($_GET['marca'] ?? [])));
         $min = $_GET['precio_min'] ?? '';
         $max = $_GET['precio_max'] ?? '';
+        $orden = $_GET['orden'] ?? 'recientes';
         return [
             'marcas'     => $marcas,
             'precio_min' => is_numeric($min) ? (float) $min : null,
             'precio_max' => is_numeric($max) ? (float) $max : null,
+            'orden'      => isset(Producto::$ordenes[$orden]) ? $orden : 'recientes',
         ];
     }
 
     // Query string de los filtros activos (para que la paginación los conserve)
-    private static function queryFiltros(array $filtros, array $extra = []): string
-    {
+    private static function queryFiltros(array $filtros, array $extra = []) : string {
         $params = $extra;
         if ($filtros['marcas'])              $params['marca']      = $filtros['marcas'];
         if ($filtros['precio_min'] !== null) $params['precio_min'] = $filtros['precio_min'];
         if ($filtros['precio_max'] !== null) $params['precio_max'] = $filtros['precio_max'];
+        if ($filtros['orden'] !== 'recientes') $params['orden']    = $filtros['orden'];
         return http_build_query($params);
     }
 
     // Home
-    public static function index(Router $router)
-    {
+    public static function index(Router $router) {
         $destacados = array_slice(Producto::whereArray(['destacado' => 1]), 0, 4);
         $categorias = Categoria::all('ASC');
         $recientes  = Producto::get(8);
@@ -56,8 +55,7 @@ class PaginasController
     }
 
     // Categoría: /categoria-producto/categoria?categoria=...
-    public static function categoria(Router $router)
-    {
+    public static function categoria(Router $router) {
         $slug = s($_GET['categoria'] ?? '');
 
         if (!$slug) {
@@ -78,14 +76,8 @@ class PaginasController
         $por_pagina    = 12;
         $pagina_actual = max(1, filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1);
         $total         = Producto::filtrarTotal($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max']);
-        $productos     = Producto::filtrar(
-            $alcance,
-            $filtros['marcas'],
-            $filtros['precio_min'],
-            $filtros['precio_max'],
-            $por_pagina,
-            ($pagina_actual - 1) * $por_pagina
-        );
+        $productos     = Producto::filtrar($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max'],
+                                           $por_pagina, ($pagina_actual - 1) * $por_pagina, $filtros['orden']);
 
         // Nombre de subcategoría para el overline de cada tarjeta
         $subs_por_id = [];
@@ -110,8 +102,7 @@ class PaginasController
     }
 
     // Subcategoría: /categoria-producto/subcategoria?categoria=...&subcategoria=...
-    public static function subcategoria(Router $router)
-    {
+    public static function subcategoria(Router $router) {
         $slug_categoria    = s($_GET['categoria']    ?? '');
         $slug_subcategoria = s($_GET['subcategoria'] ?? '');
 
@@ -140,14 +131,8 @@ class PaginasController
         $por_pagina    = 12;
         $pagina_actual = max(1, filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1);
         $total         = Producto::filtrarTotal($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max']);
-        $productos     = Producto::filtrar(
-            $alcance,
-            $filtros['marcas'],
-            $filtros['precio_min'],
-            $filtros['precio_max'],
-            $por_pagina,
-            ($pagina_actual - 1) * $por_pagina
-        );
+        $productos     = Producto::filtrar($alcance, $filtros['marcas'], $filtros['precio_min'], $filtros['precio_max'],
+                                           $por_pagina, ($pagina_actual - 1) * $por_pagina, $filtros['orden']);
 
         $router->render('tienda/subcategoria', [
             'meta_descripcion' => "{$subcategoria->nombre} en {$categoria->nombre} — Tienda Hardware",
@@ -162,15 +147,13 @@ class PaginasController
             'marcas_disponibles' => Producto::marcasDisponibles($alcance),
             'filtros'       => $filtros,
             'query_filtros' => self::queryFiltros($filtros, [
-                'categoria' => $categoria->slug,
-                'subcategoria' => $subcategoria->slug
+                'categoria' => $categoria->slug, 'subcategoria' => $subcategoria->slug
             ])
         ]);
     }
 
     // Detalle de producto
-    public static function producto(Router $router)
-    {
+    public static function producto(Router $router) {
         $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
         if (!$id) {
             header('Location: /');
@@ -201,20 +184,17 @@ class PaginasController
     }
 
     // Sobre
-    public static function sobre(Router $router)
-    {
+    public static function sobre(Router $router) {
         $router->render('paginas/sobre', ['titulo' => 'Sobre nosotros']);
     }
 
     // Garantía
-    public static function garantia(Router $router)
-    {
+    public static function garantia(Router $router) {
         $router->render('paginas/garantia', ['titulo' => 'Garantía']);
     }
 
     // Contacto
-    public static function contacto(Router $router)
-    {
+    public static function contacto(Router $router) {
         $alertas = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -229,7 +209,7 @@ class PaginasController
 
             if (!$nombre)  $alertas['error'][] = 'El nombre es obligatorio';
             if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL))
-                $alertas['error'][] = 'El email no es válido';
+                           $alertas['error'][] = 'El email no es válido';
             if (!$mensaje) $alertas['error'][] = 'El mensaje es obligatorio';
 
             if (empty($alertas)) {
@@ -244,8 +224,7 @@ class PaginasController
     }
 
     // 404
-    public static function error(Router $router)
-    {
+    public static function error(Router $router) {
         http_response_code(404);
         $router->render('paginas/error', ['titulo' => 'Página no encontrada']);
     }

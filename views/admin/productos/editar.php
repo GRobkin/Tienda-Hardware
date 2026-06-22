@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: admin/productos/editar.php
  * Variables: $producto, $categorias, $subcategorias, $alertas

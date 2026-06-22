@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: orden/checkout.php
  * Variables: $productos (con ->cantidad y ->subtotal), $total, $alertas
@@ -26,26 +25,26 @@
                 <div class="campo">
                     <label class="campo__label" for="nombre_pago">Titular de la tarjeta</label>
                     <input class="campo__input"
-                        id="nombre_pago"
-                        name="nombre_pago"
-                        type="text"
-                        placeholder="Como figura en la tarjeta"
-                        autocomplete="cc-name"
-                        required>
+                           id="nombre_pago"
+                           name="nombre_pago"
+                           type="text"
+                           placeholder="Como figura en la tarjeta"
+                           autocomplete="cc-name"
+                           required>
                     <span class="campo__error" id="errorTitular"></span>
                 </div>
 
                 <div class="campo">
                     <label class="campo__label" for="numeroTarjeta">Número de tarjeta</label>
                     <input class="campo__input"
-                        id="numeroTarjeta"
-                        name="numero_tarjeta"
-                        type="text"
-                        inputmode="numeric"
-                        placeholder="0000 0000 0000 0000"
-                        autocomplete="cc-number"
-                        maxlength="19"
-                        required>
+                           id="numeroTarjeta"
+                           name="numero_tarjeta"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="0000 0000 0000 0000"
+                           autocomplete="cc-number"
+                           maxlength="19"
+                           required>
                     <span class="campo__error" id="errorTarjeta"></span>
                     <span class="campo__ayuda">Demo: ingresá 16 dígitos cualquiera.</span>
                 </div>
@@ -61,16 +60,16 @@
 
             <ul class="resumen__items">
                 <?php foreach ($productos as $producto): ?>
-                    <li class="resumen__item">
-                        <img src="<?= imagen_producto($producto) ?>"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/img/placeholder.svg'">
-                        <span class="resumen__item-nombre">
-                            <?= s($producto->nombre) ?>
-                            <small>× <?= (int) $producto->cantidad ?></small>
-                        </span>
-                        <span class="resumen__item-precio"><?= formatear_precio($producto->subtotal) ?></span>
-                    </li>
+                <li class="resumen__item">
+                    <img src="<?= imagen_producto($producto) ?>"
+                         alt=""
+                         onerror="this.onerror=null;this.src='/img/placeholder.svg'">
+                    <span class="resumen__item-nombre">
+                        <?= s($producto->nombre) ?>
+                        <small>× <?= (int) $producto->cantidad ?></small>
+                    </span>
+                    <span class="resumen__item-precio"><?= formatear_precio($producto->subtotal) ?></span>
+                </li>
                 <?php endforeach; ?>
             </ul>
 

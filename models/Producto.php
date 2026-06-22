@@ -37,6 +37,7 @@ class Producto extends ActiveRecord
         $this->destacado       = $args['destacado']       ?? 0;
     }
 
+    // Verifica que el producto tenga nombre, descripción, precio positivo, stock entero y subcategoría válida
     public function validar()
     {
         if (!$this->nombre)       self::$alertas['error'][] = 'El nombre del producto es obligatorio';
@@ -45,8 +46,9 @@ class Producto extends ActiveRecord
             self::$alertas['error'][] = 'El precio debe ser mayor a 0';
         if (!isset($this->stock) || filter_var($this->stock, FILTER_VALIDATE_INT) === false || $this->stock < 0)
             self::$alertas['error'][] = 'El stock debe ser un número entero mayor o igual a 0';
-        if (!$this->subcategoria_id || !filter_var($this->subcategoria_id, FILTER_VALIDATE_INT))
-            self::$alertas['error'][] = 'Seleccioná una subcategoría';
+        if ($this->subcategoria_id !== '' && $this->subcategoria_id !== '0' && $this->subcategoria_id !== null
+            && !filter_var($this->subcategoria_id, FILTER_VALIDATE_INT))
+            self::$alertas['error'][] = 'Seleccioná una subcategoría válida';
         return self::$alertas;
     }
 
@@ -74,7 +76,7 @@ class Producto extends ActiveRecord
      * @param float|null $precio_min
      * @param float|null $precio_max
      */
-    private static function whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max): string
+    private static function whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max) : string
     {
         $ids = array_map('intval', $subcategoria_ids);
         $where = ' WHERE subcategoria_id IN (' . (implode(',', $ids) ?: '0') . ')';
@@ -89,27 +91,42 @@ class Producto extends ActiveRecord
         return $where;
     }
 
-    // Listado filtrado y paginado
-    public static function filtrar($subcategoria_ids, $marcas, $precio_min, $precio_max, $por_pagina, $offset)
+    // Criterios de ordenación permitidos (whitelist contra inyección SQL)
+    public static $ordenes = [
+        'recientes'   => 'id DESC',
+        'precio_asc'  => 'precio ASC',
+        'precio_desc' => 'precio DESC',
+        'nombre'      => 'nombre ASC',
+    ];
+
+    // Traduce la clave de orden recibida a una cláusula ORDER BY segura
+    private static function ordenarPor($orden) : string
+    {
+        return self::$ordenes[$orden] ?? self::$ordenes['recientes'];
+    }
+
+    // Listado filtrado, ordenado y paginado
+    public static function filtrar($subcategoria_ids, $marcas, $precio_min, $precio_max, $por_pagina, $offset, $orden = 'recientes')
     {
         $query = 'SELECT * FROM productos'
-            . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max)
-            . ' ORDER BY id DESC LIMIT ' . (int) $por_pagina . ' OFFSET ' . (int) $offset;
+               . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max)
+               . ' ORDER BY ' . self::ordenarPor($orden)
+               . ' LIMIT ' . (int) $por_pagina . ' OFFSET ' . (int) $offset;
         return self::consultarSQL($query);
     }
 
     // Total de resultados del listado filtrado (para la paginación)
-    public static function filtrarTotal($subcategoria_ids, $marcas, $precio_min, $precio_max): int
+    public static function filtrarTotal($subcategoria_ids, $marcas, $precio_min, $precio_max) : int
     {
         $query = 'SELECT COUNT(*) FROM productos'
-            . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max);
+               . self::whereFiltros($subcategoria_ids, $marcas, $precio_min, $precio_max);
         $resultado = self::$db->query($query);
         $total = $resultado->fetch_array();
         return (int) array_shift($total);
     }
 
     // Marcas disponibles dentro del alcance del listado (para el sidebar)
-    public static function marcasDisponibles($subcategoria_ids): array
+    public static function marcasDisponibles($subcategoria_ids) : array
     {
         $ids = array_map('intval', $subcategoria_ids);
         $query = "SELECT DISTINCT marca FROM productos

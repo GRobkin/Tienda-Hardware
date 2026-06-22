@@ -8,8 +8,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Autoloader simple para Models y Controllers
-spl_autoload_register(function ($class) {
+// Autoloader: carga automáticamente cada clase cuando se usa por primera vez, sin require manual
+spl_autoload_register(function($class) {
     // Convierte "Model\Usuario" => models/Usuario.php
     //           "Controllers\AuthController" => controllers/AuthController.php
     $base  = __DIR__ . '/..';
@@ -22,8 +22,8 @@ spl_autoload_register(function ($class) {
         $base . '/router/'      . basename($class) . '.php',
     ];
 
-    foreach ($rutas as $ruta) {
-        if (file_exists($ruta)) {
+    foreach($rutas as $ruta) {
+        if(file_exists($ruta)) {
             require_once $ruta;
             return;
         }
@@ -31,5 +31,4 @@ spl_autoload_register(function ($class) {
 });
 
 use Model\ActiveRecord;
-
 ActiveRecord::setDB($db);

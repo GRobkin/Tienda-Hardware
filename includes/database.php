@@ -1,4 +1,5 @@
 <?php
+// Conexión a la base de datos MySQL con mysqli
 $db = mysqli_connect(
     'localhost',
     'root',
@@ -6,7 +7,7 @@ $db = mysqli_connect(
     'tienda_hardware'
 );
 
-if (!$db) {
+if(!$db) {
     echo "Error: No se pudo conectar a MySQL. " . mysqli_connect_error();
     exit;
 }

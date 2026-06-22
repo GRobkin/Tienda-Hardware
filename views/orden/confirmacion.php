@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: orden/confirmacion.php
  * Variables: $orden, $items (con ->producto cargado)
@@ -37,23 +36,23 @@
                 </thead>
                 <tbody>
                     <?php foreach ($items as $item): ?>
-                        <tr>
-                            <td>
-                                <?php if ($item->producto): ?>
-                                    <a class="carrito__producto" href="/producto?id=<?= (int) $item->producto->id ?>">
-                                        <img src="<?= imagen_producto($item->producto) ?>"
-                                            alt="<?= s($item->producto->nombre) ?>"
-                                            onerror="this.onerror=null;this.src='/img/placeholder.svg'">
-                                        <span><?= s($item->producto->nombre) ?></span>
-                                    </a>
-                                <?php else: ?>
-                                    Producto eliminado
-                                <?php endif; ?>
-                            </td>
-                            <td>× <?= (int) $item->cantidad ?></td>
-                            <td><?= formatear_precio($item->precio_unitario) ?></td>
-                            <td><?= formatear_precio($item->precio_unitario * $item->cantidad) ?></td>
-                        </tr>
+                    <tr>
+                        <td>
+                            <?php if ($item->producto): ?>
+                                <a class="carrito__producto" href="/producto?id=<?= (int) $item->producto->id ?>">
+                                    <img src="<?= imagen_producto($item->producto) ?>"
+                                         alt="<?= s($item->producto->nombre) ?>"
+                                         onerror="this.onerror=null;this.src='/img/placeholder.svg'">
+                                    <span><?= s($item->producto->nombre) ?></span>
+                                </a>
+                            <?php else: ?>
+                                Producto eliminado
+                            <?php endif; ?>
+                        </td>
+                        <td>× <?= (int) $item->cantidad ?></td>
+                        <td><?= formatear_precio($item->precio_unitario) ?></td>
+                        <td><?= formatear_precio($item->precio_unitario * $item->cantidad) ?></td>
+                    </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>

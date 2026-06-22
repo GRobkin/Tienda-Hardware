@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Parcial: parciales/filtros.php — sidebar de filtros de listado
  * Variables: $marcas_disponibles, $filtros, $accion_base (array de hidden inputs), $url_limpiar
@@ -12,29 +11,47 @@
             <input type="hidden" name="<?= s($campo) ?>" value="<?= s($valor) ?>">
         <?php endforeach; ?>
 
-        <?php if (!empty($marcas_disponibles)): ?>
-            <fieldset class="filtros__grupo">
-                <legend class="filtros__titulo">Marca</legend>
-                <?php foreach ($marcas_disponibles as $marca): ?>
-                    <label class="filtros__opcion">
-                        <input type="checkbox" name="marca[]" value="<?= s($marca) ?>"
-                            <?= in_array($marca, $filtros['marcas']) ? 'checked' : '' ?>>
-                        <span><?= s($marca) ?></span>
-                    </label>
+        <fieldset class="filtros__grupo">
+            <legend class="filtros__titulo">Ordenar por</legend>
+            <select name="orden" class="campo__input" onchange="this.form.submit()" aria-label="Ordenar productos">
+                <?php
+                $opciones_orden = [
+                    'recientes'   => 'Más recientes',
+                    'precio_asc'  => 'Precio: menor a mayor',
+                    'precio_desc' => 'Precio: mayor a menor',
+                    'nombre'      => 'Nombre (A–Z)',
+                ];
+                foreach ($opciones_orden as $valor => $etiqueta): ?>
+                <option value="<?= s($valor) ?>" <?= $filtros['orden'] === $valor ? 'selected' : '' ?>>
+                    <?= s($etiqueta) ?>
+                </option>
                 <?php endforeach; ?>
-            </fieldset>
+            </select>
+        </fieldset>
+
+        <?php if (!empty($marcas_disponibles)): ?>
+        <fieldset class="filtros__grupo">
+            <legend class="filtros__titulo">Marca</legend>
+            <?php foreach ($marcas_disponibles as $marca): ?>
+            <label class="filtros__opcion">
+                <input type="checkbox" name="marca[]" value="<?= s($marca) ?>"
+                    <?= in_array($marca, $filtros['marcas']) ? 'checked' : '' ?>>
+                <span><?= s($marca) ?></span>
+            </label>
+            <?php endforeach; ?>
+        </fieldset>
         <?php endif; ?>
 
         <fieldset class="filtros__grupo">
             <legend class="filtros__titulo">Precio (US$)</legend>
             <div class="filtros__precios">
                 <input class="campo__input" type="number" name="precio_min" min="0" step="0.01"
-                    placeholder="Mín" aria-label="Precio mínimo"
-                    value="<?= $filtros['precio_min'] !== null ? s($filtros['precio_min']) : '' ?>">
+                       placeholder="Mín" aria-label="Precio mínimo"
+                       value="<?= $filtros['precio_min'] !== null ? s($filtros['precio_min']) : '' ?>">
                 <span aria-hidden="true">–</span>
                 <input class="campo__input" type="number" name="precio_max" min="0" step="0.01"
-                    placeholder="Máx" aria-label="Precio máximo"
-                    value="<?= $filtros['precio_max'] !== null ? s($filtros['precio_max']) : '' ?>">
+                       placeholder="Máx" aria-label="Precio máximo"
+                       value="<?= $filtros['precio_max'] !== null ? s($filtros['precio_max']) : '' ?>">
             </div>
         </fieldset>
 

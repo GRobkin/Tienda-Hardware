@@ -472,27 +472,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburguesaBtn = document.getElementById('hamburguesaBtn');
     const menuMovil = document.getElementById('menuMovil');
 
+    function abrirMenuMovil() {
+        menuMovil.hidden = false;
+        hamburguesaBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    function cerrarMenuMovil() {
+        menuMovil.hidden = true;
+        hamburguesaBtn.setAttribute('aria-expanded', 'false');
+    }
+
     if (hamburguesaBtn && menuMovil) {
         hamburguesaBtn.addEventListener('click', e => {
             e.stopPropagation();
-            const abierto = !menuMovil.hidden;
-            menuMovil.hidden = abierto;
-            hamburguesaBtn.setAttribute('aria-expanded', String(!abierto));
-        });
-
-        document.addEventListener('click', e => {
-            if (!menuMovil.hidden && !menuMovil.contains(e.target)) {
-                menuMovil.hidden = true;
-                hamburguesaBtn.setAttribute('aria-expanded', 'false');
-            }
+            menuMovil.hidden ? abrirMenuMovil() : cerrarMenuMovil();
         });
 
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') {
-                menuMovil.hidden = true;
-                hamburguesaBtn.setAttribute('aria-expanded', 'false');
-            }
+            if (e.key === 'Escape') cerrarMenuMovil();
         });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) cerrarMenuMovil();
+        });
+
+        /* Acordeón de categorías */
+        menuMovil.querySelectorAll('.menu-movil__cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const subs = btn.nextElementSibling;
+                if (!subs) return;
+                const abierto = !subs.hidden;
+                // Cerrar otros abiertos
+                menuMovil.querySelectorAll('.menu-movil__subs').forEach(s => { s.hidden = true; });
+                menuMovil.querySelectorAll('.menu-movil__cat-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+                if (!abierto) {
+                    subs.hidden = false;
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+
     }
 
     /* Admin — orden manual: filas dinámicas y total estimado */

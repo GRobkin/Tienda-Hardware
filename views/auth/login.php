@@ -1,6 +1,4 @@
-<?php
-
-/** Vista: auth/login.php — Variables: $alertas */ ?>
+<?php /** Vista: auth/login.php — Variables: $alertas */ ?>
 
 <div class="auth">
     <div class="auth__card">
@@ -19,12 +17,12 @@
             <div class="auth__campo">
                 <label class="auth__label" for="email">Correo electrónico</label>
                 <input class="auth__input"
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="tu@correo.com"
-                    autocomplete="email"
-                    required>
+                       id="email"
+                       name="email"
+                       type="email"
+                       placeholder="tu@correo.com"
+                       autocomplete="email"
+                       required>
                 <span class="auth__error" id="errorEmail"></span>
             </div>
 
@@ -32,12 +30,12 @@
                 <label class="auth__label" for="password">Contraseña</label>
                 <div class="auth__input-wrap">
                     <input class="auth__input"
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="••••••••"
-                        autocomplete="current-password"
-                        required>
+                           id="password"
+                           name="password"
+                           type="password"
+                           placeholder="••••••••"
+                           autocomplete="current-password"
+                           required>
                     <button type="button" class="auth__toggle-pass" id="togglePass" aria-label="Mostrar contraseña">
                         <i class="nav__icon nav__icon--eye" id="iconEye"></i>
                     </button>

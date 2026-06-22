@@ -1,6 +1,4 @@
-<?php
-
-/** Vista: paginas/garantia.php */ ?>
+<?php /** Vista: paginas/garantia.php */ ?>
 
 <div class="contenedor contenedor--angosto">
 

@@ -1,29 +1,23 @@
 <?php
-
 namespace Controllers;
 
 use Model\Producto;
 use MVC\Router;
 
-class CarritoController
-{
+class CarritoController {
 
     // Ver carrito
-    public static function index(Router $router)
-    {
+    public static function index(Router $router) {
         // Los administradores no compran
-        if (is_admin()) {
-            header('Location: /admin/dashboard');
-            exit;
-        }
+        if(is_admin()) { header('Location: /admin/dashboard'); exit; }
 
         $carrito   = $_SESSION['carrito'] ?? [];
         $productos = [];
         $total     = 0;
 
-        foreach ($carrito as $id => $cantidad) {
+        foreach($carrito as $id => $cantidad) {
             $producto = Producto::find($id);
-            if ($producto) {
+            if($producto) {
                 $producto->cantidad   = $cantidad;
                 $producto->subtotal   = $producto->precio * $cantidad;
                 $total               += $producto->subtotal;
@@ -39,15 +33,14 @@ class CarritoController
     }
 
     // Agregar al carrito (POST vía fetch)
-    public static function agregar()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
+    public static function agregar() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false, 'mensaje' => 'Solicitud inválida']);
             return;
         }
 
         // Los administradores no compran
-        if (is_admin()) {
+        if(is_admin()) {
             echo json_encode(['ok' => false, 'mensaje' => 'Los administradores no pueden comprar']);
             return;
         }
@@ -55,26 +48,26 @@ class CarritoController
         $id       = filter_var($_POST['id']       ?? 0, FILTER_VALIDATE_INT);
         $cantidad = filter_var($_POST['cantidad'] ?? 1, FILTER_VALIDATE_INT);
 
-        if (!$id || $cantidad < 1) {
+        if(!$id || $cantidad < 1) {
             echo json_encode(['ok' => false, 'mensaje' => 'Datos inválidos']);
             return;
         }
 
         $producto = Producto::find($id);
-        if (!$producto || $producto->stock < 1) {
+        if(!$producto || $producto->stock < 1) {
             echo json_encode(['ok' => false, 'mensaje' => 'Producto sin stock']);
             return;
         }
 
         // Sumar si ya existe, agregar si es nuevo
-        if (isset($_SESSION['carrito'][$id])) {
+        if(isset($_SESSION['carrito'][$id])) {
             $_SESSION['carrito'][$id] += $cantidad;
         } else {
             $_SESSION['carrito'][$id] = $cantidad;
         }
 
         // No superar el stock disponible
-        if ($_SESSION['carrito'][$id] > $producto->stock) {
+        if($_SESSION['carrito'][$id] > $producto->stock) {
             $_SESSION['carrito'][$id] = $producto->stock;
         }
 
@@ -83,9 +76,8 @@ class CarritoController
     }
 
     // Actualizar cantidad (POST vía fetch)
-    public static function actualizar()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
+    public static function actualizar() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false]);
             return;
         }
@@ -93,12 +85,12 @@ class CarritoController
         $id       = filter_var($_POST['id']       ?? 0, FILTER_VALIDATE_INT);
         $cantidad = filter_var($_POST['cantidad'] ?? 1, FILTER_VALIDATE_INT);
 
-        if (!$id) {
+        if(!$id) {
             echo json_encode(['ok' => false]);
             return;
         }
 
-        if ($cantidad <= 0) {
+        if($cantidad <= 0) {
             unset($_SESSION['carrito'][$id]);
         } else {
             $producto = Producto::find($id);
@@ -109,24 +101,22 @@ class CarritoController
     }
 
     // Eliminar item del carrito
-    public static function eliminar()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
+    public static function eliminar() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false]);
             return;
         }
 
         $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
-        if (isset($_SESSION['carrito'][$id])) {
+        if(isset($_SESSION['carrito'][$id])) {
             unset($_SESSION['carrito'][$id]);
         }
         echo json_encode(['ok' => true]);
     }
 
     // Vaciar carrito
-    public static function vaciar()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
+    public static function vaciar() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_check()) {
             echo json_encode(['ok' => false]);
             return;
         }

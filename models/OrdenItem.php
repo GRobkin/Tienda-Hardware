@@ -1,11 +1,10 @@
 <?php
-
+// Representa una línea de una orden: qué producto, cuántas unidades y a qué precio se compró
 namespace Model;
 
-class OrdenItem extends ActiveRecord
-{
+class OrdenItem extends ActiveRecord {
     protected static $tabla = 'orden_items';
-    protected static $columnasDB = ['id', 'orden_id', 'producto_id', 'cantidad', 'precio_unitario'];
+    protected static $columnasDB = ['id','orden_id','producto_id','cantidad','precio_unitario'];
 
     public $id;
     public $orden_id;
@@ -13,8 +12,7 @@ class OrdenItem extends ActiveRecord
     public $cantidad;
     public $precio_unitario;
 
-    public function __construct($args = [])
-    {
+    public function __construct($args = []) {
         $this->id              = $args['id']              ?? null;
         $this->orden_id        = $args['orden_id']        ?? '';
         $this->producto_id     = $args['producto_id']     ?? '';

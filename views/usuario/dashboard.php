@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Vista: usuario/dashboard.php
  * Variables: $usuario, $total_ordenes, $ordenes (últimas 3)
@@ -39,13 +38,13 @@
             <?php else: ?>
                 <ul class="pedidos-mini">
                     <?php foreach ($ordenes as $orden): ?>
-                        <li>
-                            <a href="/orden/confirmacion?token=<?= urlencode($orden->token) ?>">
-                                <code class="admin__codigo"><?= s($orden->token) ?></code>
-                            </a>
-                            <span class="estado estado--<?= s($orden->estado) ?>"><?= s($orden->estado) ?></span>
-                            <strong><?= formatear_precio($orden->total) ?></strong>
-                        </li>
+                    <li>
+                        <a href="/orden/confirmacion?token=<?= urlencode($orden->token) ?>">
+                            <code class="admin__codigo"><?= s($orden->token) ?></code>
+                        </a>
+                        <span class="estado estado--<?= s($orden->estado) ?>"><?= s($orden->estado) ?></span>
+                        <strong><?= formatear_precio($orden->total) ?></strong>
+                    </li>
                     <?php endforeach; ?>
                 </ul>
                 <a href="/mis-pedidos" class="boton boton--fantasma boton--sm">Ver todos →</a>
