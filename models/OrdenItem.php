@@ -11,6 +11,7 @@ class OrdenItem extends ActiveRecord {
     public $producto_id;
     public $cantidad;
     public $precio_unitario;
+    public $producto;
 
     public function __construct($args = []) {
         $this->id              = $args['id']              ?? null;

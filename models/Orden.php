@@ -13,6 +13,7 @@ class Orden extends ActiveRecord {
     public $total;
     public $nombre_pago;
     public $numero_tarjeta;
+    public $usuario;
     // Columna de solo lectura (no está en $columnasDB, no se escribe)
     public $creado_en;
 
