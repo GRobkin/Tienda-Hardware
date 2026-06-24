@@ -70,7 +70,7 @@
                 </li>
                 <li>
                     <strong>Email</strong>
-                    <span>hola@tiendahardware.uy</span>
+                    <span>aotstech@tiendahardware.uy</span>
                 </li>
                 <li>
                     <strong>Horario</strong>
